@@ -7,3 +7,13 @@ C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\bin\Release\devLibra.deps.json
 C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\bin\Release\devLibra.dll
 C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\obj\Release\devLibra.dll
 C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\bin\Release\devLibra.json
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\bin\Release\devLibra.json
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\bin\Release\devLibra.deps.json
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\bin\Release\devLibra.dll
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Release\devLibra.csproj.AssemblyReference.cache
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Release\devLibra.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Release\devLibra.AssemblyInfoInputs.cache
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Release\devLibra.AssemblyInfo.cs
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Release\devLibra.csproj.CoreCompileInputs.cache
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Release\devLibra.sourcelink.json
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Release\devLibra.dll

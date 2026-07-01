@@ -77,11 +77,11 @@
   "project": {
     "version": "0.0.0.1",
     "restore": {
-      "projectUniqueName": "C:\\Users\\t-k3-\\source\\repos\\dev\\devLibra_v1.0.0.0\\devLibra.csproj",
+      "projectUniqueName": "C:\\Users\\t-k3-\\source\\repos\\dev\\devLibra_v1.0.0.0\\devLibra\\devLibra.csproj",
       "projectName": "devLibra",
-      "projectPath": "C:\\Users\\t-k3-\\source\\repos\\dev\\devLibra_v1.0.0.0\\devLibra.csproj",
+      "projectPath": "C:\\Users\\t-k3-\\source\\repos\\dev\\devLibra_v1.0.0.0\\devLibra\\devLibra.csproj",
       "packagesPath": "C:\\Users\\t-k3-\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\t-k3-\\source\\repos\\dev\\devLibra_v1.0.0.0\\obj\\",
+      "outputPath": "C:\\Users\\t-k3-\\source\\repos\\dev\\devLibra_v1.0.0.0\\devLibra\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\t-k3-\\AppData\\Roaming\\NuGet\\NuGet.Config",

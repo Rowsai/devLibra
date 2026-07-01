@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "devLibra/0.0.0.1": {
+        "runtime": {
+          "devLibra.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "devLibra/0.0.0.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

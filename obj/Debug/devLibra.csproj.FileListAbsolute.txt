@@ -1,0 +1,10 @@
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\bin\Debug\devLibra.json
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\bin\Debug\devLibra.deps.json
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\bin\Debug\devLibra.dll
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Debug\devLibra.csproj.AssemblyReference.cache
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Debug\devLibra.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Debug\devLibra.AssemblyInfoInputs.cache
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Debug\devLibra.AssemblyInfo.cs
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Debug\devLibra.csproj.CoreCompileInputs.cache
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Debug\devLibra.sourcelink.json
+C:\Users\t-k3-\source\repos\dev\devLibra_v1.0.0.0\devLibra\obj\Debug\devLibra.dll

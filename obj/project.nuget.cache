@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fcjhza2VX08=",
+  "dgSpecHash": "MPQtqo0CLB4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\t-k3-\\source\\repos\\dev\\devLibra_v1.0.0.0\\devLibra.csproj",
+  "projectFilePath": "C:\\Users\\t-k3-\\source\\repos\\dev\\devLibra_v1.0.0.0\\devLibra\\devLibra.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\t-k3-\\.nuget\\packages\\dalamudpackager\\15.0.0\\dalamudpackager.15.0.0.nupkg.sha512",
     "C:\\Users\\t-k3-\\.nuget\\packages\\dotnet.reproduciblebuilds\\1.2.39\\dotnet.reproduciblebuilds.1.2.39.nupkg.sha512"
