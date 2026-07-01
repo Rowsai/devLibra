@@ -18,6 +18,9 @@ public sealed class MainWindow : Window
     private string statusSearchText = string.Empty;
     private bool statusSearchExactMatch = false;
 
+    private string actionSearchText = string.Empty;
+    private bool actionSearchExactMatch = false;
+
     public MainWindow()
         : base(
             "devLibra",
@@ -52,6 +55,12 @@ public sealed class MainWindow : Window
             if (ImGui.BeginTabItem("StatusSearch"))
             {
                 this.DrawStatusSearchTab();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("ActionSearch"))
+            {
+                this.DrawActionSearchTab();
                 ImGui.EndTabItem();
             }
 
@@ -355,6 +364,7 @@ public sealed class MainWindow : Window
     {
         ImGui.TextUnformatted("全StatusId / StatusName からステータス情報を検索します。");
         ImGui.TextDisabled("※ 現在付与されているステータスではなく、LuminaのStatusシート全体から検索します。");
+        ImGui.TextDisabled("※ Paramは付与中ステータスにだけ存在する値のため、全Status検索では '-' 表示です。");
         ImGui.Separator();
 
         ImGui.SetNextItemWidth(300);
@@ -391,15 +401,18 @@ public sealed class MainWindow : Window
 
         if (ImGui.BeginTable(
                 "statusSearchResultTable",
-                5,
+                8,
                 ImGuiTableFlags.Borders
                 | ImGuiTableFlags.RowBg
                 | ImGuiTableFlags.Resizable
                 | ImGuiTableFlags.ScrollY,
                 new Vector2(0, 0)))
         {
+            ImGui.TableSetupColumn("Icon");
+            ImGui.TableSetupColumn("IconId");
             ImGui.TableSetupColumn("StatusId");
             ImGui.TableSetupColumn("StatusName");
+            ImGui.TableSetupColumn("Param");
             ImGui.TableSetupColumn("Description");
             ImGui.TableSetupColumn("CanDispel");
             ImGui.TableSetupColumn("MaxStacks");
@@ -410,19 +423,94 @@ public sealed class MainWindow : Window
                 ImGui.TableNextRow();
 
                 ImGui.TableSetColumnIndex(0);
-                ImGui.TextUnformatted(result.StatusId.ToString());
+                this.DrawStatusIcon(result.IconId);
 
                 ImGui.TableSetColumnIndex(1);
-                ImGui.TextUnformatted(result.StatusName);
+                ImGui.TextUnformatted(result.IconId.ToString());
 
                 ImGui.TableSetColumnIndex(2);
-                ImGui.TextWrapped(result.Description);
+                ImGui.TextUnformatted(result.StatusId.ToString());
 
                 ImGui.TableSetColumnIndex(3);
-                ImGui.TextUnformatted(result.CanDispel ? "true" : "false");
+                ImGui.TextUnformatted(result.StatusName);
 
                 ImGui.TableSetColumnIndex(4);
+                ImGui.TextUnformatted(result.Param);
+
+                ImGui.TableSetColumnIndex(5);
+                ImGui.TextWrapped(result.Description);
+
+                ImGui.TableSetColumnIndex(6);
+                ImGui.TextUnformatted(result.CanDispel ? "true" : "false");
+
+                ImGui.TableSetColumnIndex(7);
                 ImGui.TextUnformatted(result.MaxStacks.ToString());
+            }
+
+            ImGui.EndTable();
+        }
+    }
+
+    private void DrawActionSearchTab()
+    {
+        ImGui.TextUnformatted("全ActionId / ActionName からアクション情報を検索します。");
+        ImGui.TextDisabled("※ 現在詠唱中のActionではなく、LuminaのActionシート全体から検索します。");
+        ImGui.Separator();
+
+        ImGui.SetNextItemWidth(300);
+        ImGui.InputText("ActionId / ActionName", ref this.actionSearchText, 128);
+
+        ImGui.SameLine();
+
+        ImGui.Checkbox("完全一致", ref this.actionSearchExactMatch);
+
+        var searchMode = this.actionSearchExactMatch ? "完全一致" : "部分一致";
+        ImGui.TextDisabled($"検索方法: {searchMode}");
+
+        ImGui.Separator();
+
+        var searchText = this.actionSearchText.Trim();
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            ImGui.TextUnformatted("ActionId または ActionName を入力してください。");
+            ImGui.TextDisabled("例: 47764 / なぞなぞマジック / Fire / Blizzard など");
+            return;
+        }
+
+        var results = this.SearchAllActions(searchText, this.actionSearchExactMatch);
+
+        ImGui.TextUnformatted($"検索結果: {results.Count} 件");
+        ImGui.Separator();
+
+        if (results.Count == 0)
+        {
+            ImGui.TextDisabled("一致するアクションは見つかりませんでした。");
+            return;
+        }
+
+        if (ImGui.BeginTable(
+                "actionSearchResultTable",
+                2,
+                ImGuiTableFlags.Borders
+                | ImGuiTableFlags.RowBg
+                | ImGuiTableFlags.Resizable
+                | ImGuiTableFlags.ScrollY,
+                new Vector2(0, 0)))
+        {
+            ImGui.TableSetupColumn("ActionId");
+            ImGui.TableSetupColumn("ActionName");
+            ImGui.TableHeadersRow();
+
+            foreach (var result in results)
+            {
+                ImGui.TableNextRow();
+
+                ImGui.TableSetColumnIndex(0);
+                ImGui.TextUnformatted(result.ActionId.ToString());
+
+                ImGui.TableSetColumnIndex(1);
+                ImGui.TextUnformatted(result.ActionName);
             }
 
             ImGui.EndTable();
@@ -473,13 +561,15 @@ public sealed class MainWindow : Window
                 if (string.IsNullOrWhiteSpace(statusName))
                     continue;
 
-                if (!this.IsStatusMatched(statusIdText, statusName, searchText, exactMatch))
+                if (!this.IsMatched(statusIdText, statusName, searchText, exactMatch))
                     continue;
 
                 results.Add(new StatusSearchResult
                 {
                     StatusId = status.RowId,
                     StatusName = statusName,
+                    IconId = status.Icon,
+                    Param = "-",
                     Description = status.Description.ExtractText(),
                     CanDispel = status.CanDispel,
                     MaxStacks = status.MaxStacks
@@ -496,20 +586,61 @@ public sealed class MainWindow : Window
             .ToList();
     }
 
-    private bool IsStatusMatched(
-        string statusIdText,
-        string statusName,
+    private List<ActionSearchResult> SearchAllActions(
+        string searchText,
+        bool exactMatch)
+    {
+        var results = new List<ActionSearchResult>();
+
+        try
+        {
+            var actionSheet = Plugin.DataManager.GetExcelSheet<LuminaAction>();
+
+            foreach (var action in actionSheet)
+            {
+                if (action.RowId == 0)
+                    continue;
+
+                var actionIdText = action.RowId.ToString();
+                var actionName = action.Name.ExtractText();
+
+                if (string.IsNullOrWhiteSpace(actionName))
+                    continue;
+
+                if (!this.IsMatched(actionIdText, actionName, searchText, exactMatch))
+                    continue;
+
+                results.Add(new ActionSearchResult
+                {
+                    ActionId = action.RowId,
+                    ActionName = actionName
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Error(ex, "Failed to search all actions.");
+        }
+
+        return results
+            .OrderBy(result => result.ActionId)
+            .ToList();
+    }
+
+    private bool IsMatched(
+        string idText,
+        string name,
         string searchText,
         bool exactMatch)
     {
         if (exactMatch)
         {
-            return string.Equals(statusIdText, searchText, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(statusName, searchText, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(idText, searchText, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(name, searchText, StringComparison.OrdinalIgnoreCase);
         }
 
-        return statusIdText.Contains(searchText, StringComparison.OrdinalIgnoreCase)
-            || statusName.Contains(searchText, StringComparison.OrdinalIgnoreCase);
+        return idText.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
     }
 
     private void DrawPartyStatusRow(
@@ -652,6 +783,35 @@ public sealed class MainWindow : Window
         ImGui.TextDisabled("-");
     }
 
+    private void DrawStatusIcon(uint iconId)
+    {
+        if (iconId == 0)
+        {
+            ImGui.TextDisabled("-");
+            return;
+        }
+
+        try
+        {
+            var textureWrap = Plugin.TextureProvider
+                .GetFromGameIcon(iconId)
+                .GetWrapOrDefault();
+
+            if (textureWrap == null)
+            {
+                ImGui.TextDisabled(iconId.ToString());
+                return;
+            }
+
+            ImGui.Image(textureWrap.Handle, new Vector2(32, 32));
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug(ex, $"Failed to draw status icon. IconId={iconId}");
+            ImGui.TextDisabled(iconId.ToString());
+        }
+    }
+
     private string GetActionName(uint actionId)
     {
         if (actionId == 0)
@@ -706,10 +866,21 @@ public sealed class MainWindow : Window
 
         public string StatusName { get; init; } = string.Empty;
 
+        public uint IconId { get; init; }
+
+        public string Param { get; init; } = "-";
+
         public string Description { get; init; } = string.Empty;
 
         public bool CanDispel { get; init; }
 
         public byte MaxStacks { get; init; }
+    }
+
+    private sealed class ActionSearchResult
+    {
+        public uint ActionId { get; init; }
+
+        public string ActionName { get; init; } = string.Empty;
     }
 }

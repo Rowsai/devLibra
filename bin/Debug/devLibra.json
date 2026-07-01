@@ -17,6 +17,7 @@
   "LoadSync": false,
   "CanUnloadAsync": false,
   "LoadPriority": 0,
+  "IconUrl": "https://raw.githubusercontent.com/Rowsai/devLibra/main/images/icon.png",
   "Punchline": "Development helper for inspecting party statuses and enemy casts.",
   "AcceptsFeedback": true
 }

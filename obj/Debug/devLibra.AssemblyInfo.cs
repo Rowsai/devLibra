@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Rowsai")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.0.0.1")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.0.1+4bb5b2b743a8976b6ba726f3e08a2ece6871d847")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.0.1+5bb2a6ae2ee5716f84efac596e62f8a719dabc20")]
 [assembly: System.Reflection.AssemblyProductAttribute("devLibra")]
 [assembly: System.Reflection.AssemblyTitleAttribute("devLibra")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.0.0.1")]
