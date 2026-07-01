@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "devLibra/0.0.0.1": {
+      "devLibra/0.0.0.3": {
         "runtime": {
           "devLibra.dll": {}
         }
@@ -14,7 +14,7 @@
     }
   },
   "libraries": {
-    "devLibra/0.0.0.1": {
+    "devLibra/0.0.0.3": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
