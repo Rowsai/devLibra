@@ -15,12 +15,15 @@ namespace devLibra.Windows;
 
 public sealed class MainWindow : Window
 {
+    private string statusSearchText = string.Empty;
+    private bool statusSearchExactMatch = false;
+
     public MainWindow()
         : base(
             "devLibra",
             ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
-        this.Size = new Vector2(1200, 700);
+        this.Size = new Vector2(1400, 800);
         this.SizeCondition = ImGuiCond.FirstUseEver;
     }
 
@@ -37,6 +40,18 @@ public sealed class MainWindow : Window
             if (ImGui.BeginTabItem("EnemyCasting"))
             {
                 this.DrawEnemyCastingTab();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("EnemyStatus"))
+            {
+                this.DrawEnemyStatusTab();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("StatusSearch"))
+            {
+                this.DrawStatusSearchTab();
                 ImGui.EndTabItem();
             }
 
@@ -117,83 +132,6 @@ public sealed class MainWindow : Window
         }
     }
 
-    private List<IPlayerCharacter> GetReplayPlayerCharacters()
-    {
-        return Plugin.ObjectTable
-            .Where(obj => obj is IPlayerCharacter)
-            .Cast<IPlayerCharacter>()
-            .Where(player => !string.IsNullOrWhiteSpace(player.Name.TextValue))
-            .OrderBy(player => player.Name.TextValue, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(player => player.EntityId)
-            .ToList();
-    }
-
-    private void DrawPartyStatusRow(
-        string memberName,
-        string job,
-        IStatus status,
-        int index)
-    {
-        var statusName = this.GetStatusName(status.StatusId);
-
-        ImGui.TableNextRow();
-
-        ImGui.TableSetColumnIndex(0);
-        ImGui.TextUnformatted(memberName);
-
-        ImGui.TableSetColumnIndex(1);
-        ImGui.TextUnformatted(job);
-
-        ImGui.TableSetColumnIndex(2);
-        ImGui.TextUnformatted(status.StatusId.ToString());
-
-        ImGui.TableSetColumnIndex(3);
-        ImGui.TextUnformatted(statusName);
-
-        ImGui.TableSetColumnIndex(4);
-        ImGui.TextUnformatted(status.Param.ToString());
-
-        ImGui.TableSetColumnIndex(5);
-        ImGui.TextUnformatted($"{status.RemainingTime:0.00}");
-
-        ImGui.TableSetColumnIndex(6);
-        ImGui.TextUnformatted(status.SourceId.ToString());
-
-        ImGui.TableSetColumnIndex(7);
-        ImGui.TextUnformatted(index.ToString());
-    }
-
-    private void DrawPartyMemberNoStatusRow(
-        string memberName,
-        string job)
-    {
-        ImGui.TableNextRow();
-
-        ImGui.TableSetColumnIndex(0);
-        ImGui.TextUnformatted(memberName);
-
-        ImGui.TableSetColumnIndex(1);
-        ImGui.TextUnformatted(job);
-
-        ImGui.TableSetColumnIndex(2);
-        ImGui.TextDisabled("No Status");
-
-        ImGui.TableSetColumnIndex(3);
-        ImGui.TextDisabled("-");
-
-        ImGui.TableSetColumnIndex(4);
-        ImGui.TextDisabled("-");
-
-        ImGui.TableSetColumnIndex(5);
-        ImGui.TextDisabled("-");
-
-        ImGui.TableSetColumnIndex(6);
-        ImGui.TextDisabled("-");
-
-        ImGui.TableSetColumnIndex(7);
-        ImGui.TextDisabled("-");
-    }
-
     private void DrawEnemyCastingTab()
     {
         ImGui.TextUnformatted("エネミーが現在詠唱中の攻撃情報を表示します。");
@@ -221,13 +159,8 @@ public sealed class MainWindow : Window
             ImGui.TableSetupColumn("StatusIndex");
             ImGui.TableHeadersRow();
 
-            var castingEnemies = Plugin.ObjectTable
-                .Where(obj => obj is IBattleChara)
-                .Cast<IBattleChara>()
-                .Where(battleChara => battleChara.ObjectKind == ObjectKind.BattleNpc)
+            var castingEnemies = this.GetEnemyBattleCharas()
                 .Where(battleChara => battleChara.IsCasting)
-                .OrderBy(battleChara => battleChara.Name.TextValue, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(battleChara => battleChara.EntityId)
                 .ToList();
 
             if (castingEnemies.Count == 0)
@@ -342,6 +275,383 @@ public sealed class MainWindow : Window
         }
     }
 
+    private void DrawEnemyStatusTab()
+    {
+        ImGui.TextUnformatted("ObjectTable上のエネミーに現在付与されているバフ・デバフ情報を表示します。");
+        ImGui.TextDisabled("※ BattleNpc の StatusList を表示します。リプレイ確認用です。");
+        ImGui.Separator();
+
+        var enemies = this.GetEnemyBattleCharas();
+
+        if (enemies.Count == 0)
+        {
+            ImGui.TextUnformatted("ObjectTable上にエネミー情報が見つかりません。");
+            return;
+        }
+
+        ImGui.TextUnformatted($"取得対象: {enemies.Count} 体");
+        ImGui.Separator();
+
+        if (ImGui.BeginTable(
+                "enemyStatusTable",
+                9,
+                ImGuiTableFlags.Borders
+                | ImGuiTableFlags.RowBg
+                | ImGuiTableFlags.Resizable
+                | ImGuiTableFlags.ScrollY,
+                new Vector2(0, 0)))
+        {
+            ImGui.TableSetupColumn("Enemy");
+            ImGui.TableSetupColumn("EntityId");
+            ImGui.TableSetupColumn("ObjectId");
+            ImGui.TableSetupColumn("StatusId");
+            ImGui.TableSetupColumn("StatusName");
+            ImGui.TableSetupColumn("Param");
+            ImGui.TableSetupColumn("Remaining");
+            ImGui.TableSetupColumn("SourceId");
+            ImGui.TableSetupColumn("Index");
+            ImGui.TableHeadersRow();
+
+            foreach (var enemy in enemies)
+            {
+                var enemyName = enemy.Name.TextValue;
+                var entityId = enemy.EntityId;
+                var objectId = enemy.GameObjectId;
+                var statuses = enemy.StatusList;
+
+                var hasStatus = false;
+
+                for (var i = 0; i < statuses.Length; i++)
+                {
+                    var status = statuses[i];
+
+                    if (status.StatusId == 0)
+                        continue;
+
+                    hasStatus = true;
+
+                    this.DrawEnemyStatusRow(
+                        enemyName,
+                        entityId,
+                        objectId,
+                        status,
+                        i);
+                }
+
+                if (!hasStatus)
+                {
+                    this.DrawEnemyNoStatusRow(
+                        enemyName,
+                        entityId,
+                        objectId);
+                }
+            }
+
+            ImGui.EndTable();
+        }
+    }
+
+    private void DrawStatusSearchTab()
+    {
+        ImGui.TextUnformatted("全StatusId / StatusName からステータス情報を検索します。");
+        ImGui.TextDisabled("※ 現在付与されているステータスではなく、LuminaのStatusシート全体から検索します。");
+        ImGui.Separator();
+
+        ImGui.SetNextItemWidth(300);
+        ImGui.InputText("StatusId / StatusName", ref this.statusSearchText, 128);
+
+        ImGui.SameLine();
+
+        ImGui.Checkbox("完全一致", ref this.statusSearchExactMatch);
+
+        var searchMode = this.statusSearchExactMatch ? "完全一致" : "部分一致";
+        ImGui.TextDisabled($"検索方法: {searchMode}");
+
+        ImGui.Separator();
+
+        var searchText = this.statusSearchText.Trim();
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            ImGui.TextUnformatted("StatusId または StatusName を入力してください。");
+            ImGui.TextDisabled("例: 5547 / 混沌の炎 / Vulnerability / Down など");
+            return;
+        }
+
+        var results = this.SearchAllStatuses(searchText, this.statusSearchExactMatch);
+
+        ImGui.TextUnformatted($"検索結果: {results.Count} 件");
+        ImGui.Separator();
+
+        if (results.Count == 0)
+        {
+            ImGui.TextDisabled("一致するステータスは見つかりませんでした。");
+            return;
+        }
+
+        if (ImGui.BeginTable(
+                "statusSearchResultTable",
+                5,
+                ImGuiTableFlags.Borders
+                | ImGuiTableFlags.RowBg
+                | ImGuiTableFlags.Resizable
+                | ImGuiTableFlags.ScrollY,
+                new Vector2(0, 0)))
+        {
+            ImGui.TableSetupColumn("StatusId");
+            ImGui.TableSetupColumn("StatusName");
+            ImGui.TableSetupColumn("Description");
+            ImGui.TableSetupColumn("CanDispel");
+            ImGui.TableSetupColumn("MaxStacks");
+            ImGui.TableHeadersRow();
+
+            foreach (var result in results)
+            {
+                ImGui.TableNextRow();
+
+                ImGui.TableSetColumnIndex(0);
+                ImGui.TextUnformatted(result.StatusId.ToString());
+
+                ImGui.TableSetColumnIndex(1);
+                ImGui.TextUnformatted(result.StatusName);
+
+                ImGui.TableSetColumnIndex(2);
+                ImGui.TextWrapped(result.Description);
+
+                ImGui.TableSetColumnIndex(3);
+                ImGui.TextUnformatted(result.CanDispel ? "true" : "false");
+
+                ImGui.TableSetColumnIndex(4);
+                ImGui.TextUnformatted(result.MaxStacks.ToString());
+            }
+
+            ImGui.EndTable();
+        }
+    }
+
+    private List<IPlayerCharacter> GetReplayPlayerCharacters()
+    {
+        return Plugin.ObjectTable
+            .Where(obj => obj is IPlayerCharacter)
+            .Cast<IPlayerCharacter>()
+            .Where(player => !string.IsNullOrWhiteSpace(player.Name.TextValue))
+            .OrderBy(player => player.Name.TextValue, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(player => player.EntityId)
+            .ToList();
+    }
+
+    private List<IBattleChara> GetEnemyBattleCharas()
+    {
+        return Plugin.ObjectTable
+            .Where(obj => obj is IBattleChara)
+            .Cast<IBattleChara>()
+            .Where(battleChara => battleChara.ObjectKind == ObjectKind.BattleNpc)
+            .Where(battleChara => !string.IsNullOrWhiteSpace(battleChara.Name.TextValue))
+            .OrderBy(battleChara => battleChara.Name.TextValue, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(battleChara => battleChara.EntityId)
+            .ToList();
+    }
+
+    private List<StatusSearchResult> SearchAllStatuses(
+        string searchText,
+        bool exactMatch)
+    {
+        var results = new List<StatusSearchResult>();
+
+        try
+        {
+            var statusSheet = Plugin.DataManager.GetExcelSheet<LuminaStatus>();
+
+            foreach (var status in statusSheet)
+            {
+                if (status.RowId == 0)
+                    continue;
+
+                var statusIdText = status.RowId.ToString();
+                var statusName = status.Name.ExtractText();
+
+                if (string.IsNullOrWhiteSpace(statusName))
+                    continue;
+
+                if (!this.IsStatusMatched(statusIdText, statusName, searchText, exactMatch))
+                    continue;
+
+                results.Add(new StatusSearchResult
+                {
+                    StatusId = status.RowId,
+                    StatusName = statusName,
+                    Description = status.Description.ExtractText(),
+                    CanDispel = status.CanDispel,
+                    MaxStacks = status.MaxStacks
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Error(ex, "Failed to search all statuses.");
+        }
+
+        return results
+            .OrderBy(result => result.StatusId)
+            .ToList();
+    }
+
+    private bool IsStatusMatched(
+        string statusIdText,
+        string statusName,
+        string searchText,
+        bool exactMatch)
+    {
+        if (exactMatch)
+        {
+            return string.Equals(statusIdText, searchText, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusName, searchText, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return statusIdText.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || statusName.Contains(searchText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void DrawPartyStatusRow(
+        string memberName,
+        string job,
+        IStatus status,
+        int index)
+    {
+        var statusName = this.GetStatusName(status.StatusId);
+
+        ImGui.TableNextRow();
+
+        ImGui.TableSetColumnIndex(0);
+        ImGui.TextUnformatted(memberName);
+
+        ImGui.TableSetColumnIndex(1);
+        ImGui.TextUnformatted(job);
+
+        ImGui.TableSetColumnIndex(2);
+        ImGui.TextUnformatted(status.StatusId.ToString());
+
+        ImGui.TableSetColumnIndex(3);
+        ImGui.TextUnformatted(statusName);
+
+        ImGui.TableSetColumnIndex(4);
+        ImGui.TextUnformatted(status.Param.ToString());
+
+        ImGui.TableSetColumnIndex(5);
+        ImGui.TextUnformatted($"{status.RemainingTime:0.00}");
+
+        ImGui.TableSetColumnIndex(6);
+        ImGui.TextUnformatted(status.SourceId.ToString());
+
+        ImGui.TableSetColumnIndex(7);
+        ImGui.TextUnformatted(index.ToString());
+    }
+
+    private void DrawPartyMemberNoStatusRow(
+        string memberName,
+        string job)
+    {
+        ImGui.TableNextRow();
+
+        ImGui.TableSetColumnIndex(0);
+        ImGui.TextUnformatted(memberName);
+
+        ImGui.TableSetColumnIndex(1);
+        ImGui.TextUnformatted(job);
+
+        ImGui.TableSetColumnIndex(2);
+        ImGui.TextDisabled("No Status");
+
+        ImGui.TableSetColumnIndex(3);
+        ImGui.TextDisabled("-");
+
+        ImGui.TableSetColumnIndex(4);
+        ImGui.TextDisabled("-");
+
+        ImGui.TableSetColumnIndex(5);
+        ImGui.TextDisabled("-");
+
+        ImGui.TableSetColumnIndex(6);
+        ImGui.TextDisabled("-");
+
+        ImGui.TableSetColumnIndex(7);
+        ImGui.TextDisabled("-");
+    }
+
+    private void DrawEnemyStatusRow(
+        string enemyName,
+        uint entityId,
+        ulong objectId,
+        IStatus status,
+        int index)
+    {
+        var statusName = this.GetStatusName(status.StatusId);
+
+        ImGui.TableNextRow();
+
+        ImGui.TableSetColumnIndex(0);
+        ImGui.TextUnformatted(enemyName);
+
+        ImGui.TableSetColumnIndex(1);
+        ImGui.TextUnformatted(entityId.ToString());
+
+        ImGui.TableSetColumnIndex(2);
+        ImGui.TextUnformatted(objectId.ToString());
+
+        ImGui.TableSetColumnIndex(3);
+        ImGui.TextUnformatted(status.StatusId.ToString());
+
+        ImGui.TableSetColumnIndex(4);
+        ImGui.TextUnformatted(statusName);
+
+        ImGui.TableSetColumnIndex(5);
+        ImGui.TextUnformatted(status.Param.ToString());
+
+        ImGui.TableSetColumnIndex(6);
+        ImGui.TextUnformatted($"{status.RemainingTime:0.00}");
+
+        ImGui.TableSetColumnIndex(7);
+        ImGui.TextUnformatted(status.SourceId.ToString());
+
+        ImGui.TableSetColumnIndex(8);
+        ImGui.TextUnformatted(index.ToString());
+    }
+
+    private void DrawEnemyNoStatusRow(
+        string enemyName,
+        uint entityId,
+        ulong objectId)
+    {
+        ImGui.TableNextRow();
+
+        ImGui.TableSetColumnIndex(0);
+        ImGui.TextUnformatted(enemyName);
+
+        ImGui.TableSetColumnIndex(1);
+        ImGui.TextUnformatted(entityId.ToString());
+
+        ImGui.TableSetColumnIndex(2);
+        ImGui.TextUnformatted(objectId.ToString());
+
+        ImGui.TableSetColumnIndex(3);
+        ImGui.TextDisabled("No Status");
+
+        ImGui.TableSetColumnIndex(4);
+        ImGui.TextDisabled("-");
+
+        ImGui.TableSetColumnIndex(5);
+        ImGui.TextDisabled("-");
+
+        ImGui.TableSetColumnIndex(6);
+        ImGui.TextDisabled("-");
+
+        ImGui.TableSetColumnIndex(7);
+        ImGui.TextDisabled("-");
+
+        ImGui.TableSetColumnIndex(8);
+        ImGui.TextDisabled("-");
+    }
+
     private string GetActionName(uint actionId)
     {
         if (actionId == 0)
@@ -388,5 +698,18 @@ public sealed class MainWindow : Window
             Plugin.Log.Debug(ex, $"Failed to get status name. StatusId={statusId}");
             return "-";
         }
+    }
+
+    private sealed class StatusSearchResult
+    {
+        public uint StatusId { get; init; }
+
+        public string StatusName { get; init; } = string.Empty;
+
+        public string Description { get; init; } = string.Empty;
+
+        public bool CanDispel { get; init; }
+
+        public byte MaxStacks { get; init; }
     }
 }
