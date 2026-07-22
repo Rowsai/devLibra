@@ -64,8 +64,31 @@ public sealed class MainWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Barrier HP"))
+            {
+                this.DrawBarrierHpTab();
+                ImGui.EndTabItem();
+            }
+
             ImGui.EndTabBar();
         }
+    }
+
+    private void DrawBarrierHpTab()
+    {
+        ImGui.TextUnformatted("Party-list HP display");
+        ImGui.Separator();
+
+        var showBarrierAdjustedHp = Plugin.Configuration.ShowBarrierAdjustedHp;
+
+        if (ImGui.Checkbox("Add barriers to displayed HP", ref showBarrierAdjustedHp))
+        {
+            Plugin.Configuration.ShowBarrierAdjustedHp = showBarrierAdjustedHp;
+            Plugin.SaveConfiguration();
+        }
+
+        ImGui.TextDisabled("When enabled, the standard party list displays current HP plus shield amount.");
+        ImGui.TextDisabled("HP text is green while a shield is included.");
     }
 
     private void DrawPartyMemberTab()
