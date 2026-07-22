@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Command;
+using Dalamud.Game.Gui;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
@@ -39,14 +40,26 @@ public sealed class Plugin : IDalamudPlugin
     internal static ITextureProvider TextureProvider { get; private set; } = null!;
 
     [PluginService]
+    internal static IGameGui GameGui { get; private set; } = null!;
+
+    [PluginService]
+    internal static IFramework Framework { get; private set; } = null!;
+
+    [PluginService]
     internal static IPluginLog Log { get; private set; } = null!;
+
+    internal static Configuration Configuration { get; private set; } = null!;
 
     private readonly WindowSystem windowSystem = new("devLibra");
     private readonly MainWindow mainWindow;
+    private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
 
     public Plugin()
     {
+        Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+
         this.mainWindow = new MainWindow();
+        this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay();
 
         this.windowSystem.AddWindow(this.mainWindow);
 
@@ -58,6 +71,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += this.DrawUi;
         PluginInterface.UiBuilder.OpenConfigUi += this.OpenUi;
         PluginInterface.UiBuilder.OpenMainUi += this.OpenUi;
+        Framework.Update += this.partyListBarrierHpDisplay.OnFrameworkUpdate;
     }
 
     public void Dispose()
@@ -65,6 +79,9 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw -= this.DrawUi;
         PluginInterface.UiBuilder.OpenConfigUi -= this.OpenUi;
         PluginInterface.UiBuilder.OpenMainUi -= this.OpenUi;
+        Framework.Update -= this.partyListBarrierHpDisplay.OnFrameworkUpdate;
+
+        this.partyListBarrierHpDisplay.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
 
@@ -84,5 +101,10 @@ public sealed class Plugin : IDalamudPlugin
     private void OpenUi()
     {
         this.mainWindow.IsOpen = true;
+    }
+
+    internal static void SaveConfiguration()
+    {
+        PluginInterface.SavePluginConfig(Configuration);
     }
 }
