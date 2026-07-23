@@ -209,6 +209,23 @@ public sealed class MainWindow : Window
             Plugin.SaveConfiguration();
         }
 
+        var overlayPosition = Plugin.Configuration.ScholarAetherflowOverlayPosition;
+        var positionX = (int)MathF.Round(overlayPosition.X);
+        var positionY = (int)MathF.Round(overlayPosition.Y);
+
+        ImGui.SetNextItemWidth(170);
+        var positionChanged = ImGui.InputInt("Position X", ref positionX);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(170);
+        positionChanged |= ImGui.InputInt("Position Y", ref positionY);
+
+        if (positionChanged)
+        {
+            Plugin.Configuration.ScholarAetherflowOverlayPosition = new Vector2(positionX, positionY);
+            Plugin.ResetScholarAetherflowOverlayPosition();
+            Plugin.SaveConfiguration();
+        }
+
         if (ImGui.Button("Reset overlay position"))
         {
             Plugin.Configuration.ScholarAetherflowOverlayPosition = new Vector2(500, 500);

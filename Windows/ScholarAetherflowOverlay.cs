@@ -13,6 +13,8 @@ public sealed class ScholarAetherflowOverlay : Window
     private const int SegmentCount = 10;
 
     private bool applySavedPosition = true;
+    private bool isDragging;
+    private Vector2 dragStartPosition;
 
     public ScholarAetherflowOverlay()
         : base(
@@ -50,7 +52,10 @@ public sealed class ScholarAetherflowOverlay : Window
             | ImGuiWindowFlags.NoBackground;
 
         if (configuration.ScholarAetherflowOverlayLocked)
+        {
             this.Flags |= ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar;
+            this.isDragging = false;
+        }
 
         var overlayHeight = this.GetOverlayHeight();
         this.Size = new Vector2(
@@ -58,7 +63,7 @@ public sealed class ScholarAetherflowOverlay : Window
             overlayHeight + (configuration.ScholarAetherflowOverlayLocked ? 0 : ImGui.GetFrameHeight()));
         this.SizeCondition = ImGuiCond.Always;
 
-        if (!this.applySavedPosition)
+        if (!this.applySavedPosition && !this.isDragging)
         {
             this.PositionCondition = ImGuiCond.None;
             return;
@@ -78,12 +83,25 @@ public sealed class ScholarAetherflowOverlay : Window
         this.DrawFairyGauge(fairyGauge);
 
         if (!Plugin.Configuration.ScholarAetherflowOverlayLocked)
-            this.SaveMovedPosition();
+            this.HandleDrag();
     }
 
-    private void SaveMovedPosition()
+    private void HandleDrag()
     {
-        var position = ImGui.GetWindowPos();
+        var panelOrigin = this.GetPanelOrigin();
+        ImGui.SetCursorScreenPos(panelOrigin);
+        ImGui.InvisibleButton(
+            "##fairyGaugeOverlayDrag",
+            new Vector2(Plugin.Configuration.ScholarAetherflowOverlayWidth, this.GetOverlayHeight()));
+
+        if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+            this.dragStartPosition = ImGui.GetWindowPos();
+
+        this.isDragging = ImGui.IsItemActive();
+        if (!this.isDragging || !ImGui.IsMouseDragging(ImGuiMouseButton.Left, 0.0f))
+            return;
+
+        var position = this.dragStartPosition + ImGui.GetMouseDragDelta(ImGuiMouseButton.Left, 0.0f);
         if (Vector2.DistanceSquared(position, Plugin.Configuration.ScholarAetherflowOverlayPosition) < 0.01f)
             return;
 
@@ -95,7 +113,7 @@ public sealed class ScholarAetherflowOverlay : Window
     {
         var width = Plugin.Configuration.ScholarAetherflowOverlayWidth;
         var height = this.GetOverlayHeight();
-        var origin = ImGui.GetWindowPos();
+        var origin = this.GetPanelOrigin();
         var drawList = ImGui.GetWindowDrawList();
         var scale = width / 240.0f;
         var padding = 12.0f * scale;
@@ -178,6 +196,14 @@ public sealed class ScholarAetherflowOverlay : Window
             Plugin.Configuration.ScholarAetherflowOverlayWidth * 0.35f,
             88.0f,
             150.0f);
+    }
+
+    private Vector2 GetPanelOrigin()
+    {
+        return ImGui.GetWindowPos()
+            + (Plugin.Configuration.ScholarAetherflowOverlayLocked
+                ? Vector2.Zero
+                : new Vector2(0, ImGui.GetFrameHeight()));
     }
 
     private uint ToColor(float red, float green, float blue, float alpha)
