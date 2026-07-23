@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.ClientState;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Command;
@@ -27,6 +29,9 @@ public sealed class Plugin : IDalamudPlugin
 
     [PluginService]
     internal static IClientState ClientState { get; private set; } = null!;
+
+    [PluginService]
+    internal static ICondition Condition { get; private set; } = null!;
 
     [PluginService]
     internal static IObjectTable ObjectTable { get; private set; } = null!;
@@ -64,6 +69,7 @@ public sealed class Plugin : IDalamudPlugin
 
         this.mainWindow = new MainWindow();
         this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay();
+        instance = this;
 
         this.windowSystem.AddWindow(this.mainWindow);
 
@@ -89,6 +95,7 @@ public sealed class Plugin : IDalamudPlugin
             this.partyListBarrierHpDisplay.OnPartyListPreFinalize);
 
         this.partyListBarrierHpDisplay.Dispose();
+        instance = null;
 
         CommandManager.RemoveHandler(CommandName);
 
@@ -114,4 +121,10 @@ public sealed class Plugin : IDalamudPlugin
     {
         PluginInterface.SavePluginConfig(Configuration);
     }
+
+    internal static IReadOnlyList<BarrierHpDebugInfo> GetBarrierHpDebugInfo()
+        => instance?.partyListBarrierHpDisplay.GetDebugInfo()
+            ?? Array.Empty<BarrierHpDebugInfo>();
+
+    private static Plugin? instance;
 }
