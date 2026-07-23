@@ -7,6 +7,7 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Statuses;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Interface.Windowing;
 using LuminaAction = Lumina.Excel.Sheets.Action;
 using LuminaStatus = Lumina.Excel.Sheets.Status;
@@ -89,6 +90,84 @@ public sealed class MainWindow : Window
 
         ImGui.TextDisabled("When enabled, the standard party list displays current HP plus shield amount.");
         ImGui.TextDisabled("HP text is green while a shield is included.");
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.TextUnformatted("Debug information");
+
+        if (Plugin.Condition[ConditionFlag.InCombat])
+        {
+            ImGui.TextDisabled("Debug information is disabled during combat.");
+            return;
+        }
+
+        ImGui.TextDisabled("Observed recovery is used for a newly applied Galvanize shield (recovery x 180%).");
+
+        var debugInfo = Plugin.GetBarrierHpDebugInfo();
+        if (debugInfo.Count == 0)
+        {
+            ImGui.TextDisabled("No party-list data is available.");
+            return;
+        }
+
+        if (!ImGui.BeginTable(
+                "barrierHpDebugTable",
+                10,
+                ImGuiTableFlags.Borders
+                | ImGuiTableFlags.RowBg
+                | ImGuiTableFlags.Resizable
+                | ImGuiTableFlags.ScrollX,
+                new Vector2(0, 240)))
+            return;
+
+        ImGui.TableSetupColumn("Slot");
+        ImGui.TableSetupColumn("Current HP");
+        ImGui.TableSetupColumn("Max HP");
+        ImGui.TableSetupColumn("Shield %");
+        ImGui.TableSetupColumn("Recovery");
+        ImGui.TableSetupColumn("Barrier");
+        ImGui.TableSetupColumn("Display result");
+        ImGui.TableSetupColumn("Calculation");
+        ImGui.TableSetupColumn("Gauge max");
+        ImGui.TableSetupColumn("Gauge values");
+        ImGui.TableHeadersRow();
+
+        foreach (var info in debugInfo)
+        {
+            ImGui.TableNextRow();
+
+            ImGui.TableSetColumnIndex(0);
+            ImGui.TextUnformatted(info.PartyIndex.ToString());
+
+            ImGui.TableSetColumnIndex(1);
+            ImGui.TextUnformatted(info.CurrentHp.ToString("N0"));
+
+            ImGui.TableSetColumnIndex(2);
+            ImGui.TextUnformatted(info.MaxHp.ToString("N0"));
+
+            ImGui.TableSetColumnIndex(3);
+            ImGui.TextUnformatted($"{info.ShieldPercentage}%");
+
+            ImGui.TableSetColumnIndex(4);
+            ImGui.TextUnformatted(info.ObservedRecoveryHp.ToString("N0"));
+
+            ImGui.TableSetColumnIndex(5);
+            ImGui.TextUnformatted(info.BarrierHp.ToString("N0"));
+
+            ImGui.TableSetColumnIndex(6);
+            ImGui.TextUnformatted(info.DisplayHp.ToString("N0"));
+
+            ImGui.TableSetColumnIndex(7);
+            ImGui.TextUnformatted(info.CalculationSource);
+
+            ImGui.TableSetColumnIndex(8);
+            ImGui.TextUnformatted(info.GaugeMaxValue.ToString("N0"));
+
+            ImGui.TableSetColumnIndex(9);
+            ImGui.TextUnformatted($"{info.GaugePrimaryValue:N0} / {info.GaugeSecondaryValue:N0}");
+        }
+
+        ImGui.EndTable();
     }
 
     private void DrawPartyMemberTab()
