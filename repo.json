@@ -3,23 +3,26 @@
     "Author": "Rowsai",
     "Name": "devLibra",
     "InternalName": "devLibra",
-    "AssemblyVersion": "0.0.0.5",
-    "Description": "リプレイでの運用専用。パーティメンバーのバフ・デバフ情報の出力、エネミーの詠唱情報を取得します。",
+    "AssemblyVersion": "0.0.0.8",
+    "Description": "Dalamud plugin development helper with party-list barrier-adjusted HP display and a Scholar Aetherflow overlay.",
     "ApplicableVersion": "any",
     "DalamudApiLevel": 15,
-    "Punchline": "リプレイ専用_PTバフデバフ_エネミーキャスト取得",
+    "Punchline": "FFXIV development utilities.",
     "RepoUrl": "https://github.com/Rowsai/devLibra",
-    "DownloadLinkInstall": "https://github.com/Rowsai/devLibra/releases/download/v0.0.0.5/devLibra.zip",
-    "DownloadLinkUpdate": "https://github.com/Rowsai/devLibra/releases/download/v0.0.0.5/devLibra.zip",
-    "DownloadLinkTesting": "https://github.com/Rowsai/devLibra/releases/download/v0.0.0.5/devLibra.zip",
+    "IconUrl": "https://raw.githubusercontent.com/Rowsai/devLibra/main/image/icon.png",
+    "DownloadLinkInstall": "https://github.com/Rowsai/devLibra/releases/download/v0.0.0.8/devLibra.zip",
+    "DownloadLinkUpdate": "https://github.com/Rowsai/devLibra/releases/download/v0.0.0.8/devLibra.zip",
+    "DownloadLinkTesting": "https://github.com/Rowsai/devLibra/releases/download/v0.0.0.8/devLibra.zip",
     "LoadRequiredState": 0,
     "LoadSync": false,
     "CanUnloadAsync": false,
     "Tags": [
-      "kefka",
-      "ultimate",
-      "overlay",
-      "devLibra"
+      "dev",
+      "debug",
+      "party",
+      "enemy",
+      "cast",
+      "gauge"
     ]
   }
 ]

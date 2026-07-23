@@ -71,6 +71,12 @@ public sealed class MainWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Gauge"))
+            {
+                this.DrawGaugeTab();
+                ImGui.EndTabItem();
+            }
+
             ImGui.EndTabBar();
         }
     }
@@ -168,6 +174,47 @@ public sealed class MainWindow : Window
         }
 
         ImGui.EndTable();
+    }
+
+    private void DrawGaugeTab()
+    {
+        ImGui.TextUnformatted("Scholar Aetherflow overlay");
+        ImGui.Separator();
+
+        var showOverlay = Plugin.Configuration.ShowScholarAetherflowOverlay;
+        if (ImGui.Checkbox("Show Aetherflow overlay", ref showOverlay))
+        {
+            Plugin.Configuration.ShowScholarAetherflowOverlay = showOverlay;
+            Plugin.SaveConfiguration();
+        }
+
+        ImGui.TextDisabled("The overlay is shown only while your current job is Scholar.");
+
+        var isLocked = Plugin.Configuration.ScholarAetherflowOverlayLocked;
+        if (ImGui.Checkbox("Lock overlay position", ref isLocked))
+        {
+            Plugin.Configuration.ScholarAetherflowOverlayLocked = isLocked;
+            Plugin.SaveConfiguration();
+        }
+
+        ImGui.TextDisabled(isLocked
+            ? "Unlock this option to move the overlay with the mouse."
+            : "Drag the overlay title bar to move it.");
+
+        var overlayWidth = Plugin.Configuration.ScholarAetherflowOverlayWidth;
+        ImGui.SetNextItemWidth(360);
+        if (ImGui.SliderInt("Overlay size", ref overlayWidth, 140, 800, "%d px"))
+        {
+            Plugin.Configuration.ScholarAetherflowOverlayWidth = overlayWidth;
+            Plugin.SaveConfiguration();
+        }
+
+        if (ImGui.Button("Reset overlay position"))
+        {
+            Plugin.Configuration.ScholarAetherflowOverlayPosition = new Vector2(500, 500);
+            Plugin.ResetScholarAetherflowOverlayPosition();
+            Plugin.SaveConfiguration();
+        }
     }
 
     private void DrawPartyMemberTab()

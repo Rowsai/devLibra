@@ -34,6 +34,9 @@ public sealed class Plugin : IDalamudPlugin
     internal static ICondition Condition { get; private set; } = null!;
 
     [PluginService]
+    internal static IJobGauges JobGauges { get; private set; } = null!;
+
+    [PluginService]
     internal static IObjectTable ObjectTable { get; private set; } = null!;
 
     [PluginService]
@@ -62,6 +65,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly WindowSystem windowSystem = new("devLibra");
     private readonly MainWindow mainWindow;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
+    private readonly ScholarAetherflowOverlay scholarAetherflowOverlay;
 
     public Plugin()
     {
@@ -69,9 +73,11 @@ public sealed class Plugin : IDalamudPlugin
 
         this.mainWindow = new MainWindow();
         this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay();
+        this.scholarAetherflowOverlay = new ScholarAetherflowOverlay();
         instance = this;
 
         this.windowSystem.AddWindow(this.mainWindow);
+        this.windowSystem.AddWindow(this.scholarAetherflowOverlay);
 
         CommandManager.AddHandler(CommandName, new CommandInfo(this.OnCommand)
         {
@@ -109,6 +115,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void DrawUi()
     {
+        this.scholarAetherflowOverlay.UpdateVisibility();
         this.windowSystem.Draw();
     }
 
@@ -125,6 +132,9 @@ public sealed class Plugin : IDalamudPlugin
     internal static IReadOnlyList<BarrierHpDebugInfo> GetBarrierHpDebugInfo()
         => instance?.partyListBarrierHpDisplay.GetDebugInfo()
             ?? Array.Empty<BarrierHpDebugInfo>();
+
+    internal static void ResetScholarAetherflowOverlayPosition()
+        => instance?.scholarAetherflowOverlay.ResetPosition();
 
     private static Plugin? instance;
 }
