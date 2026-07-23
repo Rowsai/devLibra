@@ -178,17 +178,17 @@ public sealed class MainWindow : Window
 
     private void DrawGaugeTab()
     {
-        ImGui.TextUnformatted("Scholar Aetherflow overlay");
+        ImGui.TextUnformatted("Scholar Fairy Gauge overlay");
         ImGui.Separator();
 
         var showOverlay = Plugin.Configuration.ShowScholarAetherflowOverlay;
-        if (ImGui.Checkbox("Show Aetherflow overlay", ref showOverlay))
+        if (ImGui.Checkbox("Show Fairy Gauge overlay", ref showOverlay))
         {
             Plugin.Configuration.ShowScholarAetherflowOverlay = showOverlay;
             Plugin.SaveConfiguration();
         }
 
-        ImGui.TextDisabled("The overlay is shown only while your current job is Scholar.");
+        ImGui.TextDisabled("Shows the Fairy Gauge (0-100) while your current job is Scholar.");
 
         var isLocked = Plugin.Configuration.ScholarAetherflowOverlayLocked;
         if (ImGui.Checkbox("Lock overlay position", ref isLocked))
