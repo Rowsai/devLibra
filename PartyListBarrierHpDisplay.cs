@@ -33,11 +33,9 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
     {
         try
         {
-            var partyList = (AddonPartyList*)args.Addon.Address;
-            if (partyList == null || !partyList->AtkUnitBase.IsVisible)
-                return;
-
-            this.UpdatePartyList(partyList);
+            // Keep the game's known party-list lookup and its HP component.  The
+            // gauge-bar child does not consistently expose the visible HP text.
+            this.UpdatePartyList();
         }
         catch (Exception ex)
         {
@@ -64,27 +62,29 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
     public void OnPartyListPreFinalize(AddonEvent eventType, AddonArgs args)
         => this.defaultTextColors.Clear();
 
-    private void UpdatePartyList(AddonPartyList* partyList)
+    private void UpdatePartyList()
     {
+        var partyList = Plugin.GameGui.GetAddonByName<AddonPartyList>("_PartyList");
         var partyListData = PartyListNumberArray.Instance();
 
-        if (partyListData == null)
+        if (partyList == null || partyListData == null)
             return;
 
-        for (var index = 0; index < partyList->PartyMembers.Length; index++)
+        for (var index = 0; index < 8; index++)
         {
             var member = partyList->PartyMembers[index];
             var memberData = partyListData->PartyMembers[index];
 
-            var hpTextNode = GetHpTextNode(member.HPGaugeBar);
-            if (hpTextNode == null || memberData.MaxHealth <= 0)
+            if (member.HPGaugeComponent == null || memberData.MaxHealth <= 0)
                 continue;
 
             var shieldHp = CalculateShieldHp(memberData.MaxHealth, memberData.ShieldsPercentage);
-            if (!Plugin.Configuration.ShowBarrierAdjustedHp || shieldHp <= 0)
-                continue;
+            var hasShield = Plugin.Configuration.ShowBarrierAdjustedHp && shieldHp > 0;
+            var displayHp = hasShield
+                ? SaturatingAdd(memberData.CurrentHealth, shieldHp)
+                : memberData.CurrentHealth;
 
-            this.SetHpText(hpTextNode, SaturatingAdd(memberData.CurrentHealth, shieldHp));
+            this.SetHpText(member.HPGaugeComponent, displayHp, hasShield);
         }
     }
 
@@ -92,7 +92,7 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
     {
         foreach (var (address, color) in this.defaultTextColors)
         {
-            var textNode = (AtkTextNode*)address;
+            var textNode = (AtkTextNode)address;
             if (textNode != null)
                 textNode->TextColor = color;
         }
@@ -100,31 +100,26 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
         this.defaultTextColors.Clear();
     }
 
-    private void SetHpText(AtkTextNode* textNode, int value)
+    private void SetHpText(AtkComponentBase* hpGaugeComponent, int value, bool hasShield)
     {
-        var textNodeAddress = (nint)textNode;
-
-        if (!this.defaultTextColors.ContainsKey(textNodeAddress))
-            this.defaultTextColors[textNodeAddress] = textNode->TextColor;
-
-        textNode->SetNumber(value, showCommaDelimiters: true);
-        textNode->TextColor = BarrierHpTextColor;
-    }
-
-    private static AtkTextNode* GetHpTextNode(AtkComponentGaugeBar* hpGauge)
-    {
-        if (hpGauge == null)
-            return null;
-
-        var uldManager = &hpGauge->AtkComponentBase.UldManager;
-        for (var nodeIndex = 0; nodeIndex < uldManager->NodeListCount; nodeIndex++)
+        // The party-list component owns the displayed HP text.  Applying the
+        // same value to its text nodes preserves the behaviour from v0.0.0.4.
+        // This method runs in PostUpdate, after the game has completed its own
+        // update, which avoids the original frame-timing race.
+        foreach (var node in hpGaugeComponent->UldManager.Nodes)
         {
-            var node = uldManager->NodeList[nodeIndex];
-            if (node != null && node->Type == NodeType.Text)
-                return (AtkTextNode*)node;
-        }
+            if (node.Value == null || node.Value->Type != NodeType.Text)
+                continue;
 
-        return null;
+            var textNode = (AtkTextNode*)node.Value;
+            var textNodeAddress = (nint)textNode;
+            if (!this.defaultTextColors.ContainsKey(textNodeAddress))
+                this.defaultTextColors[textNodeAddress] = textNode->TextColor;
+            textNode->SetNumber(value, showCommaDelimiters: true);
+            textNode->TextColor = hasShield
+                ? BarrierHpTextColor
+                : this.defaultTextColors[textNodeAddress];
+        }
     }
 
     internal static int CalculateShieldHp(int maxHp, int shieldPercentage)
