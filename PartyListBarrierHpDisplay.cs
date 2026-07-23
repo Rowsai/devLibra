@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Dalamud.Plugin.Services;
+using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using FFXIVClientStructs.FFXIV.Client.Graphics;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Arrays;
@@ -24,11 +25,19 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
 
     private readonly Dictionary<nint, ByteColor> defaultTextColors = new();
 
-    public void OnFrameworkUpdate(IFramework framework)
+    /// <summary>
+    /// Runs after the native party-list addon has updated its HP text.  Updating
+    /// here prevents the game and the plugin from racing to write the same node.
+    /// </summary>
+    public void OnPartyListPostUpdate(AddonEvent eventType, AddonArgs args)
     {
         try
         {
-            this.UpdatePartyList();
+            var partyList = (AddonPartyList*)args.Addon.Address;
+            if (partyList == null || !partyList->AtkUnitBase.IsVisible)
+                return;
+
+            this.UpdatePartyList(partyList);
         }
         catch (Exception ex)
         {
@@ -48,68 +57,74 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
         }
     }
 
-    private void UpdatePartyList()
+    /// <summary>
+    /// The addon is about to be destroyed, so cached text-node addresses must
+    /// not be used afterwards.
+    /// </summary>
+    public void OnPartyListPreFinalize(AddonEvent eventType, AddonArgs args)
+        => this.defaultTextColors.Clear();
+
+    private void UpdatePartyList(AddonPartyList* partyList)
     {
-        var partyList = Plugin.GameGui.GetAddonByName<AddonPartyList>("_PartyList");
         var partyListData = PartyListNumberArray.Instance();
 
-        if (partyList == null || partyListData == null)
+        if (partyListData == null)
             return;
 
-        for (var index = 0; index < 8; index++)
+        for (var index = 0; index < partyList->PartyMembers.Length; index++)
         {
             var member = partyList->PartyMembers[index];
             var memberData = partyListData->PartyMembers[index];
 
-            if (member.HPGaugeComponent == null || memberData.MaxHealth <= 0)
+            var hpTextNode = GetHpTextNode(member.HPGaugeBar);
+            if (hpTextNode == null || memberData.MaxHealth <= 0)
                 continue;
 
             var shieldHp = CalculateShieldHp(memberData.MaxHealth, memberData.ShieldsPercentage);
-            var displayHp = Plugin.Configuration.ShowBarrierAdjustedHp
-                ? SaturatingAdd(memberData.CurrentHealth, shieldHp)
-                : memberData.CurrentHealth;
+            if (!Plugin.Configuration.ShowBarrierAdjustedHp || shieldHp <= 0)
+                continue;
 
-            this.SetHpText(member.HPGaugeComponent, displayHp, shieldHp > 0 && Plugin.Configuration.ShowBarrierAdjustedHp);
+            this.SetHpText(hpTextNode, SaturatingAdd(memberData.CurrentHealth, shieldHp));
         }
     }
 
     private void RestorePartyListHp()
     {
-        var partyList = Plugin.GameGui.GetAddonByName<AddonPartyList>("_PartyList");
-        var partyListData = PartyListNumberArray.Instance();
-
-        if (partyList == null || partyListData == null)
-            return;
-
-        for (var index = 0; index < 8; index++)
+        foreach (var (address, color) in this.defaultTextColors)
         {
-            var member = partyList->PartyMembers[index];
-
-            if (member.HPGaugeComponent == null)
-                continue;
-
-            this.SetHpText(member.HPGaugeComponent, partyListData->PartyMembers[index].CurrentHealth, false);
+            var textNode = (AtkTextNode*)address;
+            if (textNode != null)
+                textNode->TextColor = color;
         }
+
+        this.defaultTextColors.Clear();
     }
 
-    private void SetHpText(AtkComponentBase* hpGaugeComponent, int value, bool hasShield)
+    private void SetHpText(AtkTextNode* textNode, int value)
     {
-        foreach (var node in hpGaugeComponent->UldManager.Nodes)
+        var textNodeAddress = (nint)textNode;
+
+        if (!this.defaultTextColors.ContainsKey(textNodeAddress))
+            this.defaultTextColors[textNodeAddress] = textNode->TextColor;
+
+        textNode->SetNumber(value, showCommaDelimiters: true);
+        textNode->TextColor = BarrierHpTextColor;
+    }
+
+    private static AtkTextNode* GetHpTextNode(AtkComponentGaugeBar* hpGauge)
+    {
+        if (hpGauge == null)
+            return null;
+
+        var uldManager = &hpGauge->AtkComponentBase.UldManager;
+        for (var nodeIndex = 0; nodeIndex < uldManager->NodeListCount; nodeIndex++)
         {
-            if (node.Value == null || node.Value->Type != NodeType.Text)
-                continue;
-
-            var textNode = (AtkTextNode*)node.Value;
-            var textNodeAddress = (nint)textNode;
-
-            if (!this.defaultTextColors.ContainsKey(textNodeAddress))
-                this.defaultTextColors[textNodeAddress] = textNode->TextColor;
-
-            textNode->SetNumber(value, showCommaDelimiters: true);
-            textNode->TextColor = hasShield
-                ? BarrierHpTextColor
-                : this.defaultTextColors[textNodeAddress];
+            var node = uldManager->NodeList[nodeIndex];
+            if (node != null && node->Type == NodeType.Text)
+                return (AtkTextNode*)node;
         }
+
+        return null;
     }
 
     internal static int CalculateShieldHp(int maxHp, int shieldPercentage)

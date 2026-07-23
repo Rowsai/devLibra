@@ -1,4 +1,5 @@
 using System;
+using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Party;
@@ -46,6 +47,9 @@ public sealed class Plugin : IDalamudPlugin
     internal static IFramework Framework { get; private set; } = null!;
 
     [PluginService]
+    internal static IAddonLifecycle AddonLifecycle { get; private set; } = null!;
+
+    [PluginService]
     internal static IPluginLog Log { get; private set; } = null!;
 
     internal static Configuration Configuration { get; private set; } = null!;
@@ -71,7 +75,8 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += this.DrawUi;
         PluginInterface.UiBuilder.OpenConfigUi += this.OpenUi;
         PluginInterface.UiBuilder.OpenMainUi += this.OpenUi;
-        Framework.Update += this.partyListBarrierHpDisplay.OnFrameworkUpdate;
+        AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "_PartyList", this.partyListBarrierHpDisplay.OnPartyListPostUpdate);
+        AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "_PartyList", this.partyListBarrierHpDisplay.OnPartyListPreFinalize);
     }
 
     public void Dispose()
@@ -79,7 +84,9 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw -= this.DrawUi;
         PluginInterface.UiBuilder.OpenConfigUi -= this.OpenUi;
         PluginInterface.UiBuilder.OpenMainUi -= this.OpenUi;
-        Framework.Update -= this.partyListBarrierHpDisplay.OnFrameworkUpdate;
+        AddonLifecycle.UnregisterListener(
+            this.partyListBarrierHpDisplay.OnPartyListPostUpdate,
+            this.partyListBarrierHpDisplay.OnPartyListPreFinalize);
 
         this.partyListBarrierHpDisplay.Dispose();
 
