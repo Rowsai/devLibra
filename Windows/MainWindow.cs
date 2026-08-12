@@ -233,7 +233,7 @@ public sealed class MainWindow : Window
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.TextUnformatted("Players within 100m");
-        ImGui.TextDisabled("Party membership is determined from the nameplate's party icon, not Player Search data.");
+        ImGui.TextDisabled("Only players showing the yellow content-participation icon are eligible.");
 
         var nearbyPlayers = Plugin.GetPartySearchNearbyPlayers();
         if (nearbyPlayers.Count == 0)
@@ -259,7 +259,9 @@ public sealed class MainWindow : Window
         foreach (var entry in nearbyPlayers)
         {
             var player = entry.Player;
-            var canInvitePlayer = canInvite && entry.HasNameplateStatus && !entry.IsInParty;
+            var canInvitePlayer = canInvite
+                && entry.HasNameplateStatus
+                && entry.IsContentParticipant;
 
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
@@ -271,10 +273,10 @@ public sealed class MainWindow : Window
             ImGui.TableSetColumnIndex(2);
             if (!entry.HasNameplateStatus)
                 ImGui.TextDisabled("Nameplate not visible");
-            else if (!entry.IsInParty)
-                ImGui.TextUnformatted("Solo");
+            else if (!entry.IsContentParticipant)
+                ImGui.TextDisabled("Not joining content");
             else
-                ImGui.TextDisabled("In party / alliance");
+                ImGui.TextUnformatted("Joining content");
 
             ImGui.TableSetColumnIndex(3);
             ImGui.BeginDisabled(!canInvitePlayer);

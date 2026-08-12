@@ -20,7 +20,7 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
     // LookingForParty is supported by the nameplate bitmap font. The
     // WaitingForDutyFinder glyph is not available there and renders as '?'.
     private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.LookingForParty));
-    private readonly Dictionary<ulong, bool> partyMembershipByGameObjectId = [];
+    private readonly Dictionary<ulong, bool> contentParticipationByGameObjectId = [];
     private bool? wasActive;
     private long lastRedrawRequestAt;
 
@@ -81,14 +81,14 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
                     continue;
 
                 // Job icons can be present in StatusPrefix when the character
-                // configuration enables them.  Check only the explicit party
-                // icon values, never the icon position or count.
-                var isInParty = HasPartyMembershipIcon(handler.StatusPrefix);
-                this.partyMembershipByGameObjectId[player.GameObjectId] = isInParty;
+                // configuration enables them. Check only the explicit content
+                // participation icon value, never the icon position or count.
+                var isContentParticipant = HasContentParticipationIcon(handler.StatusPrefix);
+                this.contentParticipationByGameObjectId[player.GameObjectId] = isContentParticipant;
 
                 if (player.GameObjectId == localPlayer.GameObjectId
                     || player.CurrentDistance > 100
-                    || isInParty)
+                    || !isContentParticipant)
                     continue;
 
                 // StatusPrefix is rendered directly to the left of the name,
@@ -128,21 +128,21 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
             .ThenBy(player => player.Name.TextValue, StringComparer.OrdinalIgnoreCase)
             .Select(player =>
             {
-                var hasNameplateStatus = this.partyMembershipByGameObjectId.TryGetValue(
+                var hasNameplateStatus = this.contentParticipationByGameObjectId.TryGetValue(
                     player.GameObjectId,
-                    out var isInParty);
-                return new NearbyNameplatePlayerInfo(player, hasNameplateStatus, isInParty);
+                    out var isContentParticipant);
+                return new NearbyNameplatePlayerInfo(
+                    player,
+                    hasNameplateStatus,
+                    isContentParticipant);
             })
             .ToArray();
     }
 
-    private static bool HasPartyMembershipIcon(SeString statusPrefix)
+    private static bool HasContentParticipationIcon(SeString statusPrefix)
         => statusPrefix.Payloads
             .OfType<IconPayload>()
-            .Any(payload => payload.Icon is BitmapFontIcon.PartyLeader
-                or BitmapFontIcon.PartyMember
-                or BitmapFontIcon.CrossWorldPartyLeader
-                or BitmapFontIcon.CrossWorldPartyMember);
+            .Any(payload => payload.Icon == BitmapFontIcon.LookingForParty);
 
     private static uint ToGameColor(Vector4 color)
     {
@@ -160,4 +160,4 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
 internal sealed record NearbyNameplatePlayerInfo(
     IPlayerCharacter Player,
     bool HasNameplateStatus,
-    bool IsInParty);
+    bool IsContentParticipant);
