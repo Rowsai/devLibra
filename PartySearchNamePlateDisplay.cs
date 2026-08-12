@@ -1,30 +1,42 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+using System.Numerics;
 using Dalamud.Game.Gui.NamePlate;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Plugin.Services;
 
 namespace devLibra;
 
 /// <summary>
-/// Applies the party-search indicator and locally configured display names to
-/// player nameplates. The nameplate service owns the backing UI data, so no
-/// game-object memory is modified and changes are local to this client.
+/// Applies the content-participation indicator and locally configured text to
+/// the local player's nameplate only while that player is solo.
 /// </summary>
 internal sealed class PartySearchNamePlateDisplay : IDisposable
 {
-    private static readonly SeString PartySearchIcon = new(new IconPayload(BitmapFontIcon.LookingForParty));
+    private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.WaitingForDutyFinder));
+    private bool? wasSolo;
 
     public PartySearchNamePlateDisplay()
     {
         Plugin.NamePlateGui.OnNamePlateUpdate += this.OnNamePlateUpdate;
+        Plugin.Framework.Update += this.OnFrameworkUpdate;
     }
 
     public void Dispose()
     {
         Plugin.NamePlateGui.OnNamePlateUpdate -= this.OnNamePlateUpdate;
+        Plugin.Framework.Update -= this.OnFrameworkUpdate;
+        Plugin.NamePlateGui.RequestRedraw();
+    }
+
+    private void OnFrameworkUpdate(IFramework framework)
+    {
+        var isSolo = Plugin.ObjectTable.LocalPlayer != null && Plugin.PartyList.Length <= 1;
+        if (this.wasSolo == isSolo)
+            return;
+
+        this.wasSolo = isSolo;
         Plugin.NamePlateGui.RequestRedraw();
     }
 
@@ -37,23 +49,26 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
 
         try
         {
+            var localPlayer = Plugin.ObjectTable.LocalPlayer;
+            if (localPlayer == null || Plugin.PartyList.Length > 1)
+                return;
+
             foreach (var handler in handlers)
             {
                 var player = handler.PlayerCharacter;
-                if (player == null || this.IsPartyMember(handler, player))
+                if (player == null || player.GameObjectId != localPlayer.GameObjectId)
                     continue;
 
-                // StatusPrefix is rendered by the game directly to the left of
-                // the name, after the job icon. BitmapFontIcon.LookingForParty
-                // is the gold party-search symbol shown in the reference image.
-                handler.StatusPrefix = PartySearchIcon;
+                // StatusPrefix is rendered directly to the left of the name,
+                // after the job icon. WaitingForDutyFinder is the game's
+                // "content participation" icon.
+                handler.StatusPrefix = ContentParticipationIcon;
 
-                var originalName = player.Name.TextValue;
-                if (!Plugin.Configuration.PartySearchPlayerNames.TryGetValue(originalName, out var replacementName)
-                    || string.IsNullOrWhiteSpace(replacementName))
-                    continue;
+                if (!string.IsNullOrWhiteSpace(Plugin.Configuration.PartySearchDisplayName))
+                    handler.Name = Plugin.Configuration.PartySearchDisplayName;
 
-                handler.Name = replacementName;
+                if (Plugin.Configuration.PartySearchUseCustomNameColor)
+                    handler.TextColor = ToGameColor(Plugin.Configuration.PartySearchNameColor);
             }
         }
         catch (Exception ex)
@@ -62,22 +77,15 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
         }
     }
 
-    private bool IsPartyMember(INamePlateUpdateHandler handler, IPlayerCharacter player)
+    private static uint ToGameColor(Vector4 color)
     {
-        // MainGroup has one member when the local player is solo. Treat that
-        // case as "not in a party" so PartySearch still applies to the player.
-        if (Plugin.PartyList.Length > 1
-            && Plugin.PartyList.Any(member => member.EntityId == player.EntityId))
-            return true;
+        static uint ToByte(float value) => (uint)Math.Clamp((int)MathF.Round(value * 255f), 0, 255);
 
-        // The game includes party state in the standard nameplate status
-        // prefix, so this also excludes visible players who are in a party
-        // other than the local player's current party.
-        return handler.StatusPrefix.Payloads
-            .OfType<IconPayload>()
-            .Any(payload => payload.Icon is BitmapFontIcon.PartyLeader
-                or BitmapFontIcon.PartyMember
-                or BitmapFontIcon.CrossWorldPartyLeader
-                or BitmapFontIcon.CrossWorldPartyMember);
+        // ImGui/Dalamud's packed color format is ABGR (the native byte order
+        // used by the nameplate text-color field).
+        return (ToByte(color.W) << 24)
+             | (ToByte(color.Z) << 16)
+             | (ToByte(color.Y) << 8)
+             | ToByte(color.X);
     }
 }

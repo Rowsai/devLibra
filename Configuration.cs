@@ -1,19 +1,22 @@
 using Dalamud.Configuration;
-using System.Collections.Generic;
+using System.Numerics;
 
 namespace devLibra;
 
 public sealed class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 3;
+    public int Version { get; set; } = 4;
 
     public bool ShowBarrierAdjustedHp { get; set; }
 
     public bool PartySearchEnabled { get; set; } = true;
 
-    /// <summary>
-    /// Per-character replacement names, keyed by the character's displayed name.
-    /// These names are rendered locally only and are never sent to the game server.
-    /// </summary>
-    public Dictionary<string, string> PartySearchPlayerNames { get; set; } = new();
+    /// <summary>Replacement name used for the local character while solo.</summary>
+    public string PartySearchDisplayName { get; set; } = string.Empty;
+
+    /// <summary>Whether a custom color is used for the local character's name while solo.</summary>
+    public bool PartySearchUseCustomNameColor { get; set; }
+
+    /// <summary>Custom RGBA color used for the local character's name while solo.</summary>
+    public Vector4 PartySearchNameColor { get; set; } = Vector4.One;
 }

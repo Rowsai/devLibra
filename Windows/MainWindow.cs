@@ -178,12 +178,12 @@ public sealed class MainWindow : Window
 
     private void DrawPartySearchTab()
     {
-        ImGui.TextUnformatted("Show the party-search icon on nameplates outside your current party.");
-        ImGui.TextDisabled("The icon and replacement names are displayed locally only.");
+        ImGui.TextUnformatted("Show the content-participation icon only on your own nameplate while you are solo.");
+        ImGui.TextDisabled("These changes are local to this game client and never affect other players.");
         ImGui.Separator();
 
         var partySearchEnabled = Plugin.Configuration.PartySearchEnabled;
-        if (ImGui.Checkbox("Show party-search icon", ref partySearchEnabled))
+        if (ImGui.Checkbox("Show content-participation icon", ref partySearchEnabled))
         {
             Plugin.Configuration.PartySearchEnabled = partySearchEnabled;
             Plugin.SaveConfiguration();
@@ -191,64 +191,44 @@ public sealed class MainWindow : Window
         }
 
         ImGui.Spacing();
-        ImGui.TextUnformatted("Visible players");
-        ImGui.TextDisabled("Enter a replacement name to change only that player's displayed nameplate.");
+        ImGui.TextUnformatted("Solo nameplate settings");
 
-        var players = this.GetPartySearchPlayers();
-        if (players.Count == 0)
+        var displayName = Plugin.Configuration.PartySearchDisplayName;
+        ImGui.SetNextItemWidth(320);
+        if (ImGui.InputText("Replacement name", ref displayName, 64))
         {
-            ImGui.TextDisabled("No eligible player characters are currently visible.");
-            return;
+            Plugin.Configuration.PartySearchDisplayName = displayName;
+            Plugin.SaveConfiguration();
+            Plugin.RequestPartySearchNamePlateRedraw();
         }
 
-        if (!ImGui.BeginTable(
-                "partySearchPlayers",
-                3,
-                ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
-            return;
+        ImGui.TextDisabled("Leave blank to keep your normal character name.");
 
-        ImGui.TableSetupColumn("Player");
-        ImGui.TableSetupColumn("Replacement name");
-        ImGui.TableSetupColumn("Action", ImGuiTableColumnFlags.WidthFixed, 80);
-        ImGui.TableHeadersRow();
-
-        foreach (var player in players)
+        var useCustomColor = Plugin.Configuration.PartySearchUseCustomNameColor;
+        if (ImGui.Checkbox("Use custom name color", ref useCustomColor))
         {
-            var playerName = player.Name.TextValue;
-            Plugin.Configuration.PartySearchPlayerNames.TryGetValue(playerName, out var replacementName);
-            replacementName ??= string.Empty;
+            Plugin.Configuration.PartySearchUseCustomNameColor = useCustomColor;
+            Plugin.SaveConfiguration();
+            Plugin.RequestPartySearchNamePlateRedraw();
+        }
 
-            ImGui.PushID((int)player.EntityId);
-
-            ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(0);
-            ImGui.TextUnformatted(playerName);
-
-            ImGui.TableSetColumnIndex(1);
-            ImGui.SetNextItemWidth(-1);
-            if (ImGui.InputText("##replacementName", ref replacementName, 64))
+        if (useCustomColor)
+        {
+            var nameColor = Plugin.Configuration.PartySearchNameColor;
+            ImGui.SetNextItemWidth(260);
+            if (ImGui.ColorEdit4("Name color", ref nameColor, ImGuiColorEditFlags.AlphaBar))
             {
-                if (string.IsNullOrWhiteSpace(replacementName))
-                    Plugin.Configuration.PartySearchPlayerNames.Remove(playerName);
-                else
-                    Plugin.Configuration.PartySearchPlayerNames[playerName] = replacementName;
-
+                Plugin.Configuration.PartySearchNameColor = nameColor;
                 Plugin.SaveConfiguration();
                 Plugin.RequestPartySearchNamePlateRedraw();
             }
-
-            ImGui.TableSetColumnIndex(2);
-            if (ImGui.SmallButton("Clear"))
-            {
-                Plugin.Configuration.PartySearchPlayerNames.Remove(playerName);
-                Plugin.SaveConfiguration();
-                Plugin.RequestPartySearchNamePlateRedraw();
-            }
-
-            ImGui.PopID();
         }
 
-        ImGui.EndTable();
+        ImGui.Spacing();
+        ImGui.TextDisabled(
+            Plugin.PartyList.Length <= 1
+                ? "Active: you are currently solo."
+                : "Inactive: you are currently in a party.");
     }
 
     private void DrawPartyMemberTab()
@@ -708,19 +688,6 @@ public sealed class MainWindow : Window
             .Where(player => !string.IsNullOrWhiteSpace(player.Name.TextValue))
             .OrderBy(player => player.Name.TextValue, StringComparer.OrdinalIgnoreCase)
             .ThenBy(player => player.EntityId)
-            .ToList();
-    }
-
-    private List<IPlayerCharacter> GetPartySearchPlayers()
-    {
-        var isInParty = Plugin.PartyList.Length > 1
-            ? Plugin.PartyList
-                .Select(member => member.EntityId)
-                .ToHashSet()
-            : new HashSet<uint>();
-
-        return this.GetReplayPlayerCharacters()
-            .Where(player => !isInParty.Contains(player.EntityId))
             .ToList();
     }
 
