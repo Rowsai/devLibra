@@ -71,9 +71,9 @@ public sealed class MainWindow : Window
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Gauge"))
+            if (ImGui.BeginTabItem("PartySearch"))
             {
-                this.DrawGaugeTab();
+                this.DrawPartySearchTab();
                 ImGui.EndTabItem();
             }
 
@@ -176,62 +176,79 @@ public sealed class MainWindow : Window
         ImGui.EndTable();
     }
 
-    private void DrawGaugeTab()
+    private void DrawPartySearchTab()
     {
-        ImGui.TextUnformatted("Scholar Fairy Gauge overlay");
+        ImGui.TextUnformatted("Show the party-search icon on nameplates outside your current party.");
+        ImGui.TextDisabled("The icon and replacement names are displayed locally only.");
         ImGui.Separator();
 
-        var showOverlay = Plugin.Configuration.ShowScholarAetherflowOverlay;
-        if (ImGui.Checkbox("Show Fairy Gauge overlay", ref showOverlay))
+        var partySearchEnabled = Plugin.Configuration.PartySearchEnabled;
+        if (ImGui.Checkbox("Show party-search icon", ref partySearchEnabled))
         {
-            Plugin.Configuration.ShowScholarAetherflowOverlay = showOverlay;
+            Plugin.Configuration.PartySearchEnabled = partySearchEnabled;
             Plugin.SaveConfiguration();
+            Plugin.RequestPartySearchNamePlateRedraw();
         }
 
-        ImGui.TextDisabled("Shows the Fairy Gauge (0-100) while your current job is Scholar.");
+        ImGui.Spacing();
+        ImGui.TextUnformatted("Visible players");
+        ImGui.TextDisabled("Enter a replacement name to change only that player's displayed nameplate.");
 
-        var isLocked = Plugin.Configuration.ScholarAetherflowOverlayLocked;
-        if (ImGui.Checkbox("Lock overlay position", ref isLocked))
+        var players = this.GetPartySearchPlayers();
+        if (players.Count == 0)
         {
-            Plugin.Configuration.ScholarAetherflowOverlayLocked = isLocked;
-            Plugin.SaveConfiguration();
+            ImGui.TextDisabled("No eligible player characters are currently visible.");
+            return;
         }
 
-        ImGui.TextDisabled(isLocked
-            ? "Unlock this option to move the overlay with the mouse."
-            : "Drag the overlay title bar to move it.");
+        if (!ImGui.BeginTable(
+                "partySearchPlayers",
+                3,
+                ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
+            return;
 
-        var overlayWidth = Plugin.Configuration.ScholarAetherflowOverlayWidth;
-        ImGui.SetNextItemWidth(360);
-        if (ImGui.SliderInt("Overlay size", ref overlayWidth, 140, 800, "%d px"))
+        ImGui.TableSetupColumn("Player");
+        ImGui.TableSetupColumn("Replacement name");
+        ImGui.TableSetupColumn("Action", ImGuiTableColumnFlags.WidthFixed, 80);
+        ImGui.TableHeadersRow();
+
+        foreach (var player in players)
         {
-            Plugin.Configuration.ScholarAetherflowOverlayWidth = overlayWidth;
-            Plugin.SaveConfiguration();
+            var playerName = player.Name.TextValue;
+            Plugin.Configuration.PartySearchPlayerNames.TryGetValue(playerName, out var replacementName);
+            replacementName ??= string.Empty;
+
+            ImGui.PushID((int)player.EntityId);
+
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0);
+            ImGui.TextUnformatted(playerName);
+
+            ImGui.TableSetColumnIndex(1);
+            ImGui.SetNextItemWidth(-1);
+            if (ImGui.InputText("##replacementName", ref replacementName, 64))
+            {
+                if (string.IsNullOrWhiteSpace(replacementName))
+                    Plugin.Configuration.PartySearchPlayerNames.Remove(playerName);
+                else
+                    Plugin.Configuration.PartySearchPlayerNames[playerName] = replacementName;
+
+                Plugin.SaveConfiguration();
+                Plugin.RequestPartySearchNamePlateRedraw();
+            }
+
+            ImGui.TableSetColumnIndex(2);
+            if (ImGui.SmallButton("Clear"))
+            {
+                Plugin.Configuration.PartySearchPlayerNames.Remove(playerName);
+                Plugin.SaveConfiguration();
+                Plugin.RequestPartySearchNamePlateRedraw();
+            }
+
+            ImGui.PopID();
         }
 
-        var overlayPosition = Plugin.Configuration.ScholarAetherflowOverlayPosition;
-        var positionX = (int)MathF.Round(overlayPosition.X);
-        var positionY = (int)MathF.Round(overlayPosition.Y);
-
-        ImGui.SetNextItemWidth(170);
-        var positionChanged = ImGui.InputInt("Position X", ref positionX);
-        ImGui.SameLine();
-        ImGui.SetNextItemWidth(170);
-        positionChanged |= ImGui.InputInt("Position Y", ref positionY);
-
-        if (positionChanged)
-        {
-            Plugin.Configuration.ScholarAetherflowOverlayPosition = new Vector2(positionX, positionY);
-            Plugin.ResetScholarAetherflowOverlayPosition();
-            Plugin.SaveConfiguration();
-        }
-
-        if (ImGui.Button("Reset overlay position"))
-        {
-            Plugin.Configuration.ScholarAetherflowOverlayPosition = new Vector2(500, 500);
-            Plugin.ResetScholarAetherflowOverlayPosition();
-            Plugin.SaveConfiguration();
-        }
+        ImGui.EndTable();
     }
 
     private void DrawPartyMemberTab()
@@ -691,6 +708,19 @@ public sealed class MainWindow : Window
             .Where(player => !string.IsNullOrWhiteSpace(player.Name.TextValue))
             .OrderBy(player => player.Name.TextValue, StringComparer.OrdinalIgnoreCase)
             .ThenBy(player => player.EntityId)
+            .ToList();
+    }
+
+    private List<IPlayerCharacter> GetPartySearchPlayers()
+    {
+        var isInParty = Plugin.PartyList.Length > 1
+            ? Plugin.PartyList
+                .Select(member => member.EntityId)
+                .ToHashSet()
+            : new HashSet<uint>();
+
+        return this.GetReplayPlayerCharacters()
+            .Where(player => !isInParty.Contains(player.EntityId))
             .ToList();
     }
 

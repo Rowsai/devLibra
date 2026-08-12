@@ -1,19 +1,19 @@
 using Dalamud.Configuration;
-using System.Numerics;
+using System.Collections.Generic;
 
 namespace devLibra;
 
 public sealed class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 2;
+    public int Version { get; set; } = 3;
 
     public bool ShowBarrierAdjustedHp { get; set; }
 
-    public bool ShowScholarAetherflowOverlay { get; set; }
+    public bool PartySearchEnabled { get; set; } = true;
 
-    public bool ScholarAetherflowOverlayLocked { get; set; } = true;
-
-    public int ScholarAetherflowOverlayWidth { get; set; } = 240;
-
-    public Vector2 ScholarAetherflowOverlayPosition { get; set; } = new(500, 500);
+    /// <summary>
+    /// Per-character replacement names, keyed by the character's displayed name.
+    /// These names are rendered locally only and are never sent to the game server.
+    /// </summary>
+    public Dictionary<string, string> PartySearchPlayerNames { get; set; } = new();
 }

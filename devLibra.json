@@ -2,8 +2,8 @@
   "Author": "Rowsai",
   "Name": "devLibra",
   "InternalName": "devLibra",
-  "AssemblyVersion": "0.0.0.11",
-  "Description": "Dalamud plugin development helper with party-list barrier-adjusted HP display and a Scholar Fairy Gauge overlay.",
+  "AssemblyVersion": "0.0.0.12",
+  "Description": "Dalamud plugin development helper with party-list barrier-adjusted HP display and PartySearch nameplate tools.",
   "ApplicableVersion": "any",
   "DalamudApiLevel": 15,
   "Punchline": "FFXIV development utilities.",
@@ -14,6 +14,7 @@
     "party",
     "enemy",
     "cast",
-    "gauge"
+    "nameplate",
+    "partysearch"
   ]
 }

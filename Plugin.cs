@@ -34,9 +34,6 @@ public sealed class Plugin : IDalamudPlugin
     internal static ICondition Condition { get; private set; } = null!;
 
     [PluginService]
-    internal static IJobGauges JobGauges { get; private set; } = null!;
-
-    [PluginService]
     internal static IObjectTable ObjectTable { get; private set; } = null!;
 
     [PluginService]
@@ -52,6 +49,9 @@ public sealed class Plugin : IDalamudPlugin
     internal static IGameGui GameGui { get; private set; } = null!;
 
     [PluginService]
+    internal static INamePlateGui NamePlateGui { get; private set; } = null!;
+
+    [PluginService]
     internal static IFramework Framework { get; private set; } = null!;
 
     [PluginService]
@@ -65,7 +65,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly WindowSystem windowSystem = new("devLibra");
     private readonly MainWindow mainWindow;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
-    private readonly ScholarAetherflowOverlay scholarAetherflowOverlay;
+    private readonly PartySearchNamePlateDisplay partySearchNamePlateDisplay;
 
     public Plugin()
     {
@@ -73,11 +73,10 @@ public sealed class Plugin : IDalamudPlugin
 
         this.mainWindow = new MainWindow();
         this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay();
-        this.scholarAetherflowOverlay = new ScholarAetherflowOverlay();
+        this.partySearchNamePlateDisplay = new PartySearchNamePlateDisplay();
         instance = this;
 
         this.windowSystem.AddWindow(this.mainWindow);
-        this.windowSystem.AddWindow(this.scholarAetherflowOverlay);
 
         CommandManager.AddHandler(CommandName, new CommandInfo(this.OnCommand)
         {
@@ -101,6 +100,7 @@ public sealed class Plugin : IDalamudPlugin
             this.partyListBarrierHpDisplay.OnPartyListPreFinalize);
 
         this.partyListBarrierHpDisplay.Dispose();
+        this.partySearchNamePlateDisplay.Dispose();
         instance = null;
 
         CommandManager.RemoveHandler(CommandName);
@@ -115,7 +115,6 @@ public sealed class Plugin : IDalamudPlugin
 
     private void DrawUi()
     {
-        this.scholarAetherflowOverlay.UpdateVisibility();
         this.windowSystem.Draw();
     }
 
@@ -133,8 +132,8 @@ public sealed class Plugin : IDalamudPlugin
         => instance?.partyListBarrierHpDisplay.GetDebugInfo()
             ?? Array.Empty<BarrierHpDebugInfo>();
 
-    internal static void ResetScholarAetherflowOverlayPosition()
-        => instance?.scholarAetherflowOverlay.ResetPosition();
+    internal static void RequestPartySearchNamePlateRedraw()
+        => NamePlateGui.RequestRedraw();
 
     private static Plugin? instance;
 }

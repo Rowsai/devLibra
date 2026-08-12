@@ -2,22 +2,23 @@
   "Author": "Rowsai",
   "Name": "devLibra",
   "InternalName": "devLibra",
-  "AssemblyVersion": "0.0.0.1",
-  "Description": "Dalamud plugin development helper. Shows party member statuses and enemy casting information.",
+  "AssemblyVersion": "0.0.0.11",
+  "Description": "Dalamud plugin development helper with party-list barrier-adjusted HP display and a Scholar Fairy Gauge overlay.",
   "ApplicableVersion": "any",
   "Tags": [
     "dev",
     "debug",
     "party",
     "enemy",
-    "cast"
+    "cast",
+    "gauge"
   ],
   "DalamudApiLevel": 15,
   "LoadRequiredState": 0,
   "LoadSync": false,
   "CanUnloadAsync": false,
   "LoadPriority": 0,
-  "IconUrl": "https://raw.githubusercontent.com/Rowsai/devLibra/main/images/icon.png",
-  "Punchline": "Development helper for inspecting party statuses and enemy casts.",
+  "IconUrl": "https://raw.githubusercontent.com/Rowsai/devLibra/main/image/icon.png",
+  "Punchline": "FFXIV development utilities.",
   "AcceptsFeedback": true
 }

@@ -2,22 +2,24 @@
   "Author": "Rowsai",
   "Name": "devLibra",
   "InternalName": "devLibra",
-  "AssemblyVersion": "0.0.0.3",
-  "Description": "Dalamud plugin development helper. Shows party member statuses and enemy casting information.",
+  "AssemblyVersion": "0.0.0.12",
+  "Description": "Dalamud plugin development helper with party-list barrier-adjusted HP display and PartySearch nameplate tools.",
   "ApplicableVersion": "any",
   "Tags": [
     "dev",
     "debug",
     "party",
     "enemy",
-    "cast"
+    "cast",
+    "nameplate",
+    "partysearch"
   ],
   "DalamudApiLevel": 15,
   "LoadRequiredState": 0,
   "LoadSync": false,
   "CanUnloadAsync": false,
   "LoadPriority": 0,
-  "IconUrl": "https://raw.githubusercontent.com/Rowsai/devLibra/main/images/icon.png",
-  "Punchline": "なんか色々出るやつです",
+  "IconUrl": "https://raw.githubusercontent.com/Rowsai/devLibra/main/image/icon.png",
+  "Punchline": "FFXIV development utilities.",
   "AcceptsFeedback": true
 }
