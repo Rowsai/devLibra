@@ -134,6 +134,10 @@ public sealed class Plugin : IDalamudPlugin
         => instance?.partyListBarrierHpDisplay.GetDebugInfo()
             ?? Array.Empty<BarrierHpDebugInfo>();
 
+    internal static IReadOnlyList<NearbyNameplatePlayerInfo> GetPartySearchNearbyPlayers()
+        => instance?.partySearchNamePlateDisplay.GetNearbyPlayers()
+            ?? Array.Empty<NearbyNameplatePlayerInfo>();
+
     internal static void RequestPartySearchNamePlateRedraw()
         => NamePlateGui.RequestRedraw();
 

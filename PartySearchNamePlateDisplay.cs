@@ -20,6 +20,7 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
     // LookingForParty is supported by the nameplate bitmap font. The
     // WaitingForDutyFinder glyph is not available there and renders as '?'.
     private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.LookingForParty));
+    private readonly Dictionary<ulong, bool> partyMembershipByGameObjectId = [];
     private bool? wasActive;
     private long lastRedrawRequestAt;
 
@@ -42,11 +43,9 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
 
         if (isActive)
         {
-            NearbyPlayerSearch.RefreshOnlineStates();
-
-            // Player Search replies arrive asynchronously. Refresh visible
-            // nameplates once per second so status changes take effect without
-            // waiting for an unrelated game UI update.
+            // Party membership icons are supplied by the game with the
+            // nameplate data. Refresh them so a party-state change is applied
+            // without waiting for an unrelated UI update.
             var now = Environment.TickCount64;
             if (now - this.lastRedrawRequestAt >= 1000)
             {
@@ -75,20 +74,21 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
             if (localPlayer == null)
                 return;
 
-            // Take one Player Search snapshot for this update instead of
-            // reading the native list once for every visible nameplate.
-            var confirmedSoloPlayerIds = NearbyPlayerSearch.GetNearbyPlayers()
-                .Where(entry => entry.IsSolo)
-                .Select(entry => entry.Player.GameObjectId)
-                .ToHashSet();
-
             foreach (var handler in handlers)
             {
                 var player = handler.PlayerCharacter;
-                if (player == null
-                    || player.GameObjectId == localPlayer.GameObjectId
+                if (player == null)
+                    continue;
+
+                // Job icons can be present in StatusPrefix when the character
+                // configuration enables them.  Check only the explicit party
+                // icon values, never the icon position or count.
+                var isInParty = HasPartyMembershipIcon(handler.StatusPrefix);
+                this.partyMembershipByGameObjectId[player.GameObjectId] = isInParty;
+
+                if (player.GameObjectId == localPlayer.GameObjectId
                     || player.CurrentDistance > 100
-                    || !confirmedSoloPlayerIds.Contains(player.GameObjectId))
+                    || isInParty)
                     continue;
 
                 // StatusPrefix is rendered directly to the left of the name,
@@ -113,6 +113,37 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
            && Plugin.ObjectTable.LocalPlayer != null
            && !Plugin.Condition[ConditionFlag.InCombat];
 
+    internal IReadOnlyList<NearbyNameplatePlayerInfo> GetNearbyPlayers()
+    {
+        var localPlayer = Plugin.ObjectTable.LocalPlayer;
+        if (localPlayer == null)
+            return Array.Empty<NearbyNameplatePlayerInfo>();
+
+        return Plugin.ObjectTable
+            .OfType<IPlayerCharacter>()
+            .Where(player => player.GameObjectId != localPlayer.GameObjectId)
+            .Where(player => player.CurrentDistance <= 100)
+            .Where(player => !string.IsNullOrWhiteSpace(player.Name.TextValue))
+            .OrderBy(player => player.CurrentDistance)
+            .ThenBy(player => player.Name.TextValue, StringComparer.OrdinalIgnoreCase)
+            .Select(player =>
+            {
+                var hasNameplateStatus = this.partyMembershipByGameObjectId.TryGetValue(
+                    player.GameObjectId,
+                    out var isInParty);
+                return new NearbyNameplatePlayerInfo(player, hasNameplateStatus, isInParty);
+            })
+            .ToArray();
+    }
+
+    private static bool HasPartyMembershipIcon(SeString statusPrefix)
+        => statusPrefix.Payloads
+            .OfType<IconPayload>()
+            .Any(payload => payload.Icon is BitmapFontIcon.PartyLeader
+                or BitmapFontIcon.PartyMember
+                or BitmapFontIcon.CrossWorldPartyLeader
+                or BitmapFontIcon.CrossWorldPartyMember);
+
     private static uint ToGameColor(Vector4 color)
     {
         static uint ToByte(float value) => (uint)Math.Clamp((int)MathF.Round(value * 255f), 0, 255);
@@ -125,3 +156,8 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
              | ToByte(color.X);
     }
 }
+
+internal sealed record NearbyNameplatePlayerInfo(
+    IPlayerCharacter Player,
+    bool HasNameplateStatus,
+    bool IsInParty);

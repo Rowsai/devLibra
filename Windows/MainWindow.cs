@@ -233,9 +233,9 @@ public sealed class MainWindow : Window
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.TextUnformatted("Players within 100m");
-        ImGui.TextDisabled("Only confirmed solo players receive the icon/name change and can be invited.");
+        ImGui.TextDisabled("Party membership is determined from the nameplate's party icon, not Player Search data.");
 
-        var nearbyPlayers = NearbyPlayerSearch.GetNearbyPlayers();
+        var nearbyPlayers = Plugin.GetPartySearchNearbyPlayers();
         if (nearbyPlayers.Count == 0)
         {
             ImGui.TextDisabled("No other players within 100m.");
@@ -259,7 +259,7 @@ public sealed class MainWindow : Window
         foreach (var entry in nearbyPlayers)
         {
             var player = entry.Player;
-            var canInvitePlayer = canInvite && entry.IsSolo;
+            var canInvitePlayer = canInvite && entry.HasNameplateStatus && !entry.IsInParty;
 
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
@@ -269,11 +269,9 @@ public sealed class MainWindow : Window
             ImGui.TextUnformatted($"{player.CurrentDistance}m");
 
             ImGui.TableSetColumnIndex(2);
-            if (!entry.HasPlayerSearchState)
-                ImGui.TextDisabled("Status unavailable");
-            else if (!entry.IsOnline)
-                ImGui.TextDisabled("Not online");
-            else if (entry.IsSolo)
+            if (!entry.HasNameplateStatus)
+                ImGui.TextDisabled("Nameplate not visible");
+            else if (!entry.IsInParty)
                 ImGui.TextUnformatted("Solo");
             else
                 ImGui.TextDisabled("In party / alliance");
