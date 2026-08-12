@@ -5,9 +5,8 @@ using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Gui.NamePlate;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
 
 namespace devLibra;
 
@@ -15,11 +14,11 @@ namespace devLibra;
 /// Applies the content-participation indicator and locally configured text to
 /// nearby solo player nameplates while the local player is out of combat.
 /// </summary>
-internal sealed class PartySearchNamePlateDisplay : IDisposable
+internal unsafe sealed class PartySearchNamePlateDisplay : IDisposable
 {
-    // The yellow Finder icon marks a player who is waiting to enter content.
-    // It is distinct from LookingForParty, which is the blue P icon.
-    private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.WaitingForDutyFinder));
+    // OnlineStatus row 43 is the gold "In Duty" icon shown in the
+    // nameplate. This is distinct from row 25 (blue Duty Finder waiting).
+    private const byte InDutyOnlineStatus = 43;
     private readonly Dictionary<ulong, bool> contentParticipationByGameObjectId = [];
     private bool? wasActive;
     private long lastRedrawRequestAt;
@@ -80,10 +79,9 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
                 if (player == null)
                     continue;
 
-                // Job icons can be present in StatusPrefix when the character
-                // configuration enables them. Check the explicit yellow Finder
-                // icon by value, never its position or the icon count.
-                var isContentParticipant = HasContentParticipationIcon(handler.StatusPrefix);
+                // Read the game's online-status value directly. Nameplate UI
+                // settings, including class/job icons, do not affect it.
+                var isContentParticipant = IsInContent(player);
                 this.contentParticipationByGameObjectId[player.GameObjectId] = isContentParticipant;
 
                 if (player.GameObjectId == localPlayer.GameObjectId
@@ -91,9 +89,8 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
                     || !isContentParticipant)
                     continue;
 
-                // StatusPrefix is rendered directly to the left of the name,
-                // after the job icon.
-                handler.StatusPrefix = ContentParticipationIcon;
+                // Do not overwrite StatusPrefix: the game already renders the
+                // original gold In Duty icon next to this player's name.
 
                 if (!string.IsNullOrWhiteSpace(Plugin.Configuration.PartySearchDisplayName))
                     handler.Name = Plugin.Configuration.PartySearchDisplayName;
@@ -139,10 +136,11 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
             .ToArray();
     }
 
-    private static bool HasContentParticipationIcon(SeString statusPrefix)
-        => statusPrefix.Payloads
-            .OfType<IconPayload>()
-            .Any(payload => payload.Icon == BitmapFontIcon.WaitingForDutyFinder);
+    private static bool IsInContent(IPlayerCharacter player)
+    {
+        var character = (Character*)player.Address;
+        return character != null && character->OnlineStatus == InDutyOnlineStatus;
+    }
 
     private static uint ToGameColor(Vector4 color)
     {
