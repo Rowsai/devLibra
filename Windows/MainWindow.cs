@@ -271,6 +271,8 @@ public sealed class MainWindow : Window
             ImGui.TableSetColumnIndex(2);
             if (!entry.HasPlayerSearchState)
                 ImGui.TextDisabled("Status unavailable");
+            else if (!entry.IsOnline)
+                ImGui.TextDisabled("Not online");
             else if (entry.IsSolo)
                 ImGui.TextUnformatted("Solo");
             else

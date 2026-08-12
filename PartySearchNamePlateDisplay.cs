@@ -21,6 +21,7 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
     // WaitingForDutyFinder glyph is not available there and renders as '?'.
     private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.LookingForParty));
     private bool? wasActive;
+    private long lastRedrawRequestAt;
 
     public PartySearchNamePlateDisplay()
     {
@@ -38,6 +39,22 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
     private void OnFrameworkUpdate(IFramework framework)
     {
         var isActive = this.IsFeatureActive();
+
+        if (isActive)
+        {
+            NearbyPlayerSearch.RefreshOnlineStates();
+
+            // Player Search replies arrive asynchronously. Refresh visible
+            // nameplates once per second so status changes take effect without
+            // waiting for an unrelated game UI update.
+            var now = Environment.TickCount64;
+            if (now - this.lastRedrawRequestAt >= 1000)
+            {
+                this.lastRedrawRequestAt = now;
+                Plugin.NamePlateGui.RequestRedraw();
+            }
+        }
+
         if (this.wasActive == isActive)
             return;
 

@@ -14,6 +14,8 @@ namespace devLibra;
 internal static unsafe class NearbyPlayerSearch
 {
     private const byte MaximumDistance = 100;
+    private const long RefreshIntervalMilliseconds = 3000;
+    private static long lastRefreshRequestAt;
 
     private const InfoProxyCommonList.CharacterData.OnlineStatus PartyMembershipFlags =
         InfoProxyCommonList.CharacterData.OnlineStatus.AllianceLeader
@@ -23,6 +25,34 @@ internal static unsafe class NearbyPlayerSearch
         | InfoProxyCommonList.CharacterData.OnlineStatus.PartyMember
         | InfoProxyCommonList.CharacterData.OnlineStatus.PartyLeaderCrossWorld
         | InfoProxyCommonList.CharacterData.OnlineStatus.PartyMemberCrossWorld;
+
+    /// <summary>
+    /// Requests the current Player Search result set at a controlled interval.
+    /// The response fills the same proxy read by <see cref="GetNearbyPlayers"/>.
+    /// </summary>
+    internal static void RefreshOnlineStates()
+    {
+        var now = Environment.TickCount64;
+        if (now - lastRefreshRequestAt < RefreshIntervalMilliseconds)
+            return;
+
+        try
+        {
+            var playerSearch = GetPlayerSearchProxy();
+            if (playerSearch == null)
+                return;
+
+            // RequestData returns false while the client cannot send a new
+            // request (for example, while one is in progress).  Throttle both
+            // outcomes so the framework update never retries every frame.
+            lastRefreshRequestAt = now;
+            playerSearch->RequestData();
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug(ex, "Failed to refresh Player Search data.");
+        }
+    }
 
     internal static IReadOnlyList<NearbyPlayerSearchEntry> GetNearbyPlayers()
     {
@@ -48,9 +78,11 @@ internal static unsafe class NearbyPlayerSearch
         IReadOnlyDictionary<PlayerSearchKey, InfoProxyCommonList.CharacterData.OnlineStatus> searchStates)
     {
         var hasSearchState = searchStates.TryGetValue(CreateKey(player), out var state);
-        var isSolo = hasSearchState && (state & PartyMembershipFlags) == 0;
+        var isOnline = hasSearchState
+            && (state & InfoProxyCommonList.CharacterData.OnlineStatus.Online) != 0;
+        var isSolo = isOnline && (state & PartyMembershipFlags) == 0;
 
-        return new NearbyPlayerSearchEntry(player, hasSearchState, isSolo);
+        return new NearbyPlayerSearchEntry(player, hasSearchState, isOnline, isSolo);
     }
 
     private static Dictionary<PlayerSearchKey, InfoProxyCommonList.CharacterData.OnlineStatus> GetPlayerSearchStates()
@@ -59,16 +91,12 @@ internal static unsafe class NearbyPlayerSearch
 
         try
         {
-            var infoModule = InfoModule.Instance();
-            if (infoModule == null)
+            var playerSearch = GetPlayerSearchProxy();
+            if (playerSearch == null)
                 return states;
 
-            var proxy = infoModule->GetInfoProxyById(InfoProxyId.PlayerSearch);
-            if (proxy == null)
-                return states;
-
-            var playerSearch = (InfoProxyCommonList*)proxy;
-            foreach (var character in playerSearch->CharDataSpan)
+            var commonList = (InfoProxyCommonList*)playerSearch;
+            foreach (var character in commonList->CharDataSpan)
             {
                 var name = character.NameString;
                 if (string.IsNullOrWhiteSpace(name))
@@ -85,6 +113,16 @@ internal static unsafe class NearbyPlayerSearch
         return states;
     }
 
+    private static InfoProxySearch* GetPlayerSearchProxy()
+    {
+        var infoModule = InfoModule.Instance();
+        if (infoModule == null)
+            return null;
+
+        var proxy = infoModule->GetInfoProxyById(InfoProxyId.PlayerSearch);
+        return (InfoProxySearch*)proxy;
+    }
+
     private static PlayerSearchKey CreateKey(IPlayerCharacter player)
         => new(player.Name.TextValue, checked((ushort)player.HomeWorld.RowId));
 
@@ -94,4 +132,5 @@ internal static unsafe class NearbyPlayerSearch
 internal sealed record NearbyPlayerSearchEntry(
     IPlayerCharacter Player,
     bool HasPlayerSearchState,
+    bool IsOnline,
     bool IsSolo);
