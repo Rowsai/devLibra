@@ -225,6 +225,35 @@ public sealed class MainWindow : Window
         }
 
         ImGui.Spacing();
+        ImGui.TextUnformatted("Eligible player target lines");
+
+        var drawTargetLines = Plugin.Configuration.PartySearchDrawTargetLines;
+        if (ImGui.Checkbox("Draw lines from your character", ref drawTargetLines))
+        {
+            Plugin.Configuration.PartySearchDrawTargetLines = drawTargetLines;
+            Plugin.SaveConfiguration();
+        }
+
+        if (drawTargetLines)
+        {
+            var lineColor = Plugin.Configuration.PartySearchTargetLineColor;
+            ImGui.SetNextItemWidth(260);
+            if (ImGui.ColorEdit4("Line color", ref lineColor, ImGuiColorEditFlags.AlphaBar))
+            {
+                Plugin.Configuration.PartySearchTargetLineColor = lineColor;
+                Plugin.SaveConfiguration();
+            }
+
+            var lineThickness = Plugin.Configuration.PartySearchTargetLineThickness;
+            ImGui.SetNextItemWidth(260);
+            if (ImGui.SliderFloat("Line thickness", ref lineThickness, 1f, 10f, "%.1f px"))
+            {
+                Plugin.Configuration.PartySearchTargetLineThickness = lineThickness;
+                Plugin.SaveConfiguration();
+            }
+        }
+
+        ImGui.Spacing();
         ImGui.TextDisabled(
             Plugin.Condition[ConditionFlag.InCombat]
                 ? "Inactive: you are currently in combat."

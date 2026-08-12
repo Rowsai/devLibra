@@ -136,6 +136,20 @@ internal unsafe sealed class PartySearchNamePlateDisplay : IDisposable
             .ToArray();
     }
 
+    internal IReadOnlyList<IPlayerCharacter> GetEligiblePlayers()
+    {
+        var localPlayer = Plugin.ObjectTable.LocalPlayer;
+        if (!this.IsFeatureActive() || localPlayer == null)
+            return Array.Empty<IPlayerCharacter>();
+
+        return Plugin.ObjectTable
+            .OfType<IPlayerCharacter>()
+            .Where(player => player.GameObjectId != localPlayer.GameObjectId)
+            .Where(player => player.CurrentDistance <= 100)
+            .Where(IsInContent)
+            .ToArray();
+    }
+
     private static bool IsInContent(IPlayerCharacter player)
     {
         var character = (Character*)player.Address;

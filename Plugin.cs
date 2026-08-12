@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Conditions;
@@ -117,7 +119,35 @@ public sealed class Plugin : IDalamudPlugin
 
     private void DrawUi()
     {
+        this.DrawPartySearchTargetLines();
         this.windowSystem.Draw();
+    }
+
+    private void DrawPartySearchTargetLines()
+    {
+        if (!Configuration.PartySearchEnabled
+            || !Configuration.PartySearchDrawTargetLines
+            || Condition[ConditionFlag.InCombat])
+            return;
+
+        var localPlayer = ObjectTable.LocalPlayer;
+        if (localPlayer == null)
+            return;
+
+        if (!GameGui.WorldToScreen(localPlayer.Position + Vector3.UnitY, out var sourcePosition))
+            sourcePosition = ImGui.GetMainViewport().GetCenter();
+
+        var drawList = ImGui.GetForegroundDrawList();
+        var color = ImGui.GetColorU32(Configuration.PartySearchTargetLineColor);
+        var thickness = Math.Clamp(Configuration.PartySearchTargetLineThickness, 1f, 10f);
+
+        foreach (var player in this.partySearchNamePlateDisplay.GetEligiblePlayers())
+        {
+            if (!GameGui.WorldToScreen(player.Position + Vector3.UnitY, out var targetPosition))
+                continue;
+
+            drawList.AddLine(sourcePosition, targetPosition, color, thickness);
+        }
     }
 
     private void OpenUi()
