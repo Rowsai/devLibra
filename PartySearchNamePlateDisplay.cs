@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Gui.NamePlate;
 using Dalamud.Game.Text.SeStringHandling;
@@ -59,14 +58,20 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
             if (localPlayer == null)
                 return;
 
+            // Take one Player Search snapshot for this update instead of
+            // reading the native list once for every visible nameplate.
+            var confirmedSoloPlayerIds = NearbyPlayerSearch.GetNearbyPlayers()
+                .Where(entry => entry.IsSolo)
+                .Select(entry => entry.Player.GameObjectId)
+                .ToHashSet();
+
             foreach (var handler in handlers)
             {
                 var player = handler.PlayerCharacter;
                 if (player == null
                     || player.GameObjectId == localPlayer.GameObjectId
                     || player.CurrentDistance > 100
-                    || !IsSoloPlayer(player)
-                    || HasPartyStatusIcon(handler))
+                    || !confirmedSoloPlayerIds.Contains(player.GameObjectId))
                     continue;
 
                 // StatusPrefix is rendered directly to the left of the name,
@@ -90,17 +95,6 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
         => Plugin.Configuration.PartySearchEnabled
            && Plugin.ObjectTable.LocalPlayer != null
            && !Plugin.Condition[ConditionFlag.InCombat];
-
-    private static bool IsSoloPlayer(IPlayerCharacter player)
-        => (player.StatusFlags & (StatusFlags.PartyMember | StatusFlags.AllianceMember)) == StatusFlags.None;
-
-    private static bool HasPartyStatusIcon(INamePlateUpdateHandler handler)
-        => handler.StatusPrefix.Payloads
-            .OfType<IconPayload>()
-            .Any(payload => payload.Icon is BitmapFontIcon.PartyLeader
-                or BitmapFontIcon.PartyMember
-                or BitmapFontIcon.CrossWorldPartyLeader
-                or BitmapFontIcon.CrossWorldPartyMember);
 
     private static uint ToGameColor(Vector4 color)
     {

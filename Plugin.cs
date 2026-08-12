@@ -12,6 +12,8 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using devLibra.Windows;
+using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI;
 
 namespace devLibra;
 
@@ -134,6 +136,20 @@ public sealed class Plugin : IDalamudPlugin
 
     internal static void RequestPartySearchNamePlateRedraw()
         => NamePlateGui.RequestRedraw();
+
+    internal static unsafe void InviteToParty(string playerName)
+    {
+        if (string.IsNullOrWhiteSpace(playerName)
+            || playerName.IndexOfAny(['\r', '\n']) >= 0)
+            return;
+
+        var uiModule = UIModule.Instance();
+        if (uiModule == null)
+            return;
+
+        using var command = new Utf8String($"/invite {playerName}");
+        uiModule->ProcessChatBoxEntry(&command);
+    }
 
     private static Plugin? instance;
 }

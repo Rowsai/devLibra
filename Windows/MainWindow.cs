@@ -229,6 +229,61 @@ public sealed class MainWindow : Window
             Plugin.Condition[ConditionFlag.InCombat]
                 ? "Inactive: you are currently in combat."
                 : "Active: checking other players within 100m.");
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.TextUnformatted("Players within 100m");
+        ImGui.TextDisabled("Only confirmed solo players receive the icon/name change and can be invited.");
+
+        var nearbyPlayers = NearbyPlayerSearch.GetNearbyPlayers();
+        if (nearbyPlayers.Count == 0)
+        {
+            ImGui.TextDisabled("No other players within 100m.");
+            return;
+        }
+
+        if (!ImGui.BeginTable(
+                "partySearchNearbyPlayers",
+                4,
+                ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable,
+                new Vector2(0, 240)))
+            return;
+
+        ImGui.TableSetupColumn("Player");
+        ImGui.TableSetupColumn("Distance", ImGuiTableColumnFlags.WidthFixed, 80);
+        ImGui.TableSetupColumn("Status", ImGuiTableColumnFlags.WidthFixed, 160);
+        ImGui.TableSetupColumn("Action", ImGuiTableColumnFlags.WidthFixed, 90);
+        ImGui.TableHeadersRow();
+
+        var canInvite = !Plugin.Condition[ConditionFlag.InCombat];
+        foreach (var entry in nearbyPlayers)
+        {
+            var player = entry.Player;
+            var canInvitePlayer = canInvite && entry.IsSolo;
+
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0);
+            ImGui.TextUnformatted(player.Name.TextValue);
+
+            ImGui.TableSetColumnIndex(1);
+            ImGui.TextUnformatted($"{player.CurrentDistance}m");
+
+            ImGui.TableSetColumnIndex(2);
+            if (!entry.HasPlayerSearchState)
+                ImGui.TextDisabled("Status unavailable");
+            else if (entry.IsSolo)
+                ImGui.TextUnformatted("Solo");
+            else
+                ImGui.TextDisabled("In party / alliance");
+
+            ImGui.TableSetColumnIndex(3);
+            ImGui.BeginDisabled(!canInvitePlayer);
+            if (ImGui.Button($"Invite##{player.GameObjectId}"))
+                Plugin.InviteToParty(player.Name.TextValue);
+            ImGui.EndDisabled();
+        }
+
+        ImGui.EndTable();
     }
 
     private void DrawPartyMemberTab()
