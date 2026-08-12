@@ -178,8 +178,8 @@ public sealed class MainWindow : Window
 
     private void DrawPartySearchTab()
     {
-        ImGui.TextUnformatted("Show the content-participation icon only on your own nameplate while you are solo.");
-        ImGui.TextDisabled("These changes are local to this game client and never affect other players.");
+        ImGui.TextUnformatted("Show the content-participation icon on nearby solo players' nameplates.");
+        ImGui.TextDisabled("Only other players within 100m are affected. The feature is disabled while you are in combat.");
         ImGui.Separator();
 
         var partySearchEnabled = Plugin.Configuration.PartySearchEnabled;
@@ -191,7 +191,7 @@ public sealed class MainWindow : Window
         }
 
         ImGui.Spacing();
-        ImGui.TextUnformatted("Solo nameplate settings");
+        ImGui.TextUnformatted("Eligible player nameplate settings");
 
         var displayName = Plugin.Configuration.PartySearchDisplayName;
         ImGui.SetNextItemWidth(320);
@@ -202,7 +202,7 @@ public sealed class MainWindow : Window
             Plugin.RequestPartySearchNamePlateRedraw();
         }
 
-        ImGui.TextDisabled("Leave blank to keep your normal character name.");
+        ImGui.TextDisabled("Leave blank to keep eligible players' normal character names.");
 
         var useCustomColor = Plugin.Configuration.PartySearchUseCustomNameColor;
         if (ImGui.Checkbox("Use custom name color", ref useCustomColor))
@@ -226,9 +226,9 @@ public sealed class MainWindow : Window
 
         ImGui.Spacing();
         ImGui.TextDisabled(
-            Plugin.PartyList.Length <= 1
-                ? "Active: you are currently solo."
-                : "Inactive: you are currently in a party.");
+            Plugin.Condition[ConditionFlag.InCombat]
+                ? "Inactive: you are currently in combat."
+                : "Active: checking other players within 100m.");
     }
 
     private void DrawPartyMemberTab()

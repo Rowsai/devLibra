@@ -2,8 +2,8 @@
   "Author": "Rowsai",
   "Name": "devLibra",
   "InternalName": "devLibra",
-  "AssemblyVersion": "0.0.0.13",
-  "Description": "Dalamud plugin development helper with party-list barrier-adjusted HP display and solo content-participation nameplate tools.",
+  "AssemblyVersion": "0.0.0.14",
+  "Description": "Dalamud plugin development helper with party-list barrier-adjusted HP display and nearby solo-player content-participation nameplate tools.",
   "ApplicableVersion": "any",
   "Tags": [
     "dev",
@@ -19,7 +19,7 @@
   "LoadSync": false,
   "CanUnloadAsync": false,
   "LoadPriority": 0,
-  "IconUrl": "https://raw.githubusercontent.com/Rowsai/devLibra/main/image/icon.png",
+  "IconUrl": "https://raw.githubusercontent.com/Rowsai/devLibra/main/image/icon-512.png",
   "Punchline": "FFXIV development utilities.",
   "AcceptsFeedback": true
 }

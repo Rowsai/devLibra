@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Enums;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Gui.NamePlate;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
@@ -10,12 +14,14 @@ namespace devLibra;
 
 /// <summary>
 /// Applies the content-participation indicator and locally configured text to
-/// the local player's nameplate only while that player is solo.
+/// nearby solo player nameplates while the local player is out of combat.
 /// </summary>
 internal sealed class PartySearchNamePlateDisplay : IDisposable
 {
-    private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.WaitingForDutyFinder));
-    private bool? wasSolo;
+    // LookingForParty is supported by the nameplate bitmap font. The
+    // WaitingForDutyFinder glyph is not available there and renders as '?'.
+    private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.LookingForParty));
+    private bool? wasActive;
 
     public PartySearchNamePlateDisplay()
     {
@@ -32,11 +38,11 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
 
     private void OnFrameworkUpdate(IFramework framework)
     {
-        var isSolo = Plugin.ObjectTable.LocalPlayer != null && Plugin.PartyList.Length <= 1;
-        if (this.wasSolo == isSolo)
+        var isActive = this.IsFeatureActive();
+        if (this.wasActive == isActive)
             return;
 
-        this.wasSolo = isSolo;
+        this.wasActive = isActive;
         Plugin.NamePlateGui.RequestRedraw();
     }
 
@@ -44,24 +50,27 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
         INamePlateUpdateContext context,
         IReadOnlyList<INamePlateUpdateHandler> handlers)
     {
-        if (!Plugin.Configuration.PartySearchEnabled)
+        if (!this.IsFeatureActive())
             return;
 
         try
         {
             var localPlayer = Plugin.ObjectTable.LocalPlayer;
-            if (localPlayer == null || Plugin.PartyList.Length > 1)
+            if (localPlayer == null)
                 return;
 
             foreach (var handler in handlers)
             {
                 var player = handler.PlayerCharacter;
-                if (player == null || player.GameObjectId != localPlayer.GameObjectId)
+                if (player == null
+                    || player.GameObjectId == localPlayer.GameObjectId
+                    || player.CurrentDistance > 100
+                    || !IsSoloPlayer(player)
+                    || HasPartyStatusIcon(handler))
                     continue;
 
                 // StatusPrefix is rendered directly to the left of the name,
-                // after the job icon. WaitingForDutyFinder is the game's
-                // "content participation" icon.
+                // after the job icon.
                 handler.StatusPrefix = ContentParticipationIcon;
 
                 if (!string.IsNullOrWhiteSpace(Plugin.Configuration.PartySearchDisplayName))
@@ -76,6 +85,22 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
             Plugin.Log.Debug(ex, "Failed to update PartySearch nameplates.");
         }
     }
+
+    private bool IsFeatureActive()
+        => Plugin.Configuration.PartySearchEnabled
+           && Plugin.ObjectTable.LocalPlayer != null
+           && !Plugin.Condition[ConditionFlag.InCombat];
+
+    private static bool IsSoloPlayer(IPlayerCharacter player)
+        => (player.StatusFlags & (StatusFlags.PartyMember | StatusFlags.AllianceMember)) == StatusFlags.None;
+
+    private static bool HasPartyStatusIcon(INamePlateUpdateHandler handler)
+        => handler.StatusPrefix.Payloads
+            .OfType<IconPayload>()
+            .Any(payload => payload.Icon is BitmapFontIcon.PartyLeader
+                or BitmapFontIcon.PartyMember
+                or BitmapFontIcon.CrossWorldPartyLeader
+                or BitmapFontIcon.CrossWorldPartyMember);
 
     private static uint ToGameColor(Vector4 color)
     {
