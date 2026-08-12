@@ -17,9 +17,9 @@ namespace devLibra;
 /// </summary>
 internal sealed class PartySearchNamePlateDisplay : IDisposable
 {
-    // LookingForParty is supported by the nameplate bitmap font. The
-    // WaitingForDutyFinder glyph is not available there and renders as '?'.
-    private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.LookingForParty));
+    // The yellow Finder icon marks a player who is waiting to enter content.
+    // It is distinct from LookingForParty, which is the blue P icon.
+    private static readonly SeString ContentParticipationIcon = new(new IconPayload(BitmapFontIcon.WaitingForDutyFinder));
     private readonly Dictionary<ulong, bool> contentParticipationByGameObjectId = [];
     private bool? wasActive;
     private long lastRedrawRequestAt;
@@ -81,8 +81,8 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
                     continue;
 
                 // Job icons can be present in StatusPrefix when the character
-                // configuration enables them. Check only the explicit content
-                // participation icon value, never the icon position or count.
+                // configuration enables them. Check the explicit yellow Finder
+                // icon by value, never its position or the icon count.
                 var isContentParticipant = HasContentParticipationIcon(handler.StatusPrefix);
                 this.contentParticipationByGameObjectId[player.GameObjectId] = isContentParticipant;
 
@@ -142,7 +142,7 @@ internal sealed class PartySearchNamePlateDisplay : IDisposable
     private static bool HasContentParticipationIcon(SeString statusPrefix)
         => statusPrefix.Payloads
             .OfType<IconPayload>()
-            .Any(payload => payload.Icon == BitmapFontIcon.LookingForParty);
+            .Any(payload => payload.Icon == BitmapFontIcon.WaitingForDutyFinder);
 
     private static uint ToGameColor(Vector4 color)
     {
