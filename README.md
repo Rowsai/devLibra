@@ -36,9 +36,9 @@
 Dalamud のカスタムプラグインリポジトリに次の URL を追加してください。
 
 ```text
-https://raw.githubusercontent.com/Rowsai/Rowsai-Plugins/main/pluginmaster.json
+https://raw.githubusercontent.com/Rowsai/Rowsai-Plugins/refs/heads/main/pluginmaster.json
 ```
 
 ## 最新版
 
-現在の配布バージョンは **v0.0.0.10** です。配布ファイルと更新履歴は [Releases](https://github.com/Rowsai/devLibra/releases) から確認できます。
+現在の配布バージョンは **v0.0.0.21** です。配布ファイルと更新履歴は [Releases](https://github.com/Rowsai/devLibra/releases) から確認できます。
