@@ -21,6 +21,7 @@ public sealed class MainWindow : Window
 
     private string actionSearchText = string.Empty;
     private bool actionSearchExactMatch = false;
+    private string partyInviteResult = string.Empty;
 
     public MainWindow()
         : base(
@@ -290,7 +291,8 @@ public sealed class MainWindow : Window
             var player = entry.Player;
             var canInvitePlayer = canInvite
                 && entry.HasNameplateStatus
-                && entry.IsContentParticipant;
+                && entry.IsContentParticipant
+                && Plugin.CanInviteToParty(player);
 
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
@@ -310,11 +312,18 @@ public sealed class MainWindow : Window
             ImGui.TableSetColumnIndex(3);
             ImGui.BeginDisabled(!canInvitePlayer);
             if (ImGui.Button($"Invite##{player.GameObjectId}"))
-                Plugin.InviteToParty(player.Name.TextValue);
+            {
+                this.partyInviteResult = Plugin.InviteToParty(player)
+                    ? $"Invitation sent to {player.Name.TextValue}."
+                    : $"Could not send an invitation to {player.Name.TextValue}.";
+            }
             ImGui.EndDisabled();
         }
 
         ImGui.EndTable();
+
+        if (!string.IsNullOrEmpty(this.partyInviteResult))
+            ImGui.TextWrapped(this.partyInviteResult);
     }
 
     private void DrawPartyMemberTab()

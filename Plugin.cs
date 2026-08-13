@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Party;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.Interface.Windowing;
@@ -14,8 +16,7 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using devLibra.Windows;
-using FFXIVClientStructs.FFXIV.Client.System.String;
-using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 
 namespace devLibra;
 
@@ -171,18 +172,35 @@ public sealed class Plugin : IDalamudPlugin
     internal static void RequestPartySearchNamePlateRedraw()
         => NamePlateGui.RequestRedraw();
 
-    internal static unsafe void InviteToParty(string playerName)
+    internal static unsafe bool CanInviteToParty(IPlayerCharacter player)
     {
-        if (string.IsNullOrWhiteSpace(playerName)
-            || playerName.IndexOfAny(['\r', '\n']) >= 0)
-            return;
+        if (ObjectTable.LocalPlayer == null || string.IsNullOrWhiteSpace(player.Name.TextValue))
+            return false;
 
-        var uiModule = UIModule.Instance();
-        if (uiModule == null)
-            return;
+        var character = (FFXIVClientStructs.FFXIV.Client.Game.Character.Character*)player.Address;
+        return character != null && character->ContentId != 0;
+    }
 
-        using var command = new Utf8String($"/invite {playerName}");
-        uiModule->ProcessChatBoxEntry(&command);
+    internal static unsafe bool InviteToParty(IPlayerCharacter player)
+    {
+        var localPlayer = ObjectTable.LocalPlayer;
+        if (localPlayer == null || !CanInviteToParty(player))
+            return false;
+
+        var targetCharacter = (FFXIVClientStructs.FFXIV.Client.Game.Character.Character*)player.Address;
+        var localCharacter = (FFXIVClientStructs.FFXIV.Client.Game.Character.Character*)localPlayer.Address;
+        var partyInvite = InfoProxyPartyInvite.Instance();
+        if (targetCharacter == null || localCharacter == null || partyInvite == null)
+            return false;
+
+        // The game uses a name + home world for same-world invites. Cross-world
+        // invites require the target's content ID and current world instead.
+        if (targetCharacter->CurrentWorld != localCharacter->CurrentWorld)
+            return partyInvite->InviteToPartyContentId(targetCharacter->ContentId, targetCharacter->CurrentWorld);
+
+        var nameBytes = Encoding.UTF8.GetBytes(player.Name.TextValue + '\0');
+        fixed (byte* name = nameBytes)
+            return partyInvite->InviteToParty(targetCharacter->ContentId, name, targetCharacter->HomeWorld);
     }
 
     private static Plugin? instance;
