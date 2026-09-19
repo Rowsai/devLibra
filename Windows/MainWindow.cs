@@ -78,6 +78,17 @@ public sealed class MainWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Change Party Icons"))
+            {
+                var enabled = Plugin.Configuration.ChangePartyIconsEnabled;
+                if (ImGui.Checkbox("有効##ChangePartyIcons", ref enabled))
+                {
+                    Plugin.Configuration.ChangePartyIconsEnabled = enabled;
+                    Plugin.SaveConfiguration();
+                }
+                ImGui.EndTabItem();
+            }
+
             ImGui.EndTabBar();
         }
     }
@@ -1145,3 +1156,4 @@ public sealed class MainWindow : Window
         public string ActionName { get; init; } = string.Empty;
     }
 }
+

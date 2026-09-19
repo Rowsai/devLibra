@@ -7,6 +7,8 @@ public sealed class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 5;
 
+    public bool ChangePartyIconsEnabled { get; set; } = true;
+
     public bool ShowBarrierAdjustedHp { get; set; }
 
     public bool PartySearchEnabled { get; set; } = true;
@@ -29,3 +31,4 @@ public sealed class Configuration : IPluginConfiguration
     /// <summary>Screen-space thickness of eligible-player target lines.</summary>
     public float PartySearchTargetLineThickness { get; set; } = 2f;
 }
+

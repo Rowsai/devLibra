@@ -1,6 +1,6 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.0.0.23</Version>
+    <Version>0.0.0.24</Version>
     <Authors>Rowsai</Authors>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -14,3 +14,4 @@
     </Content>
   </ItemGroup>
 </Project>
+

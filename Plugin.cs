@@ -70,6 +70,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private readonly WindowSystem windowSystem = new("devLibra");
     private readonly MainWindow mainWindow;
+    private readonly PartyListTargetMarkerDisplay partyListTargetMarkerDisplay;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
     private readonly PartySearchNamePlateDisplay partySearchNamePlateDisplay;
     private readonly ConcurrentQueue<PartyInviteRequest> partyInviteRequests = [];
@@ -80,6 +81,7 @@ public sealed class Plugin : IDalamudPlugin
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
         this.mainWindow = new MainWindow();
+        this.partyListTargetMarkerDisplay = new PartyListTargetMarkerDisplay();
         this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay();
         this.partySearchNamePlateDisplay = new PartySearchNamePlateDisplay();
         instance = this;
@@ -96,6 +98,8 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenMainUi += this.OpenUi;
         AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "_PartyList", this.partyListBarrierHpDisplay.OnPartyListPostUpdate);
         AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "_PartyList", this.partyListBarrierHpDisplay.OnPartyListPreFinalize);
+        AddonLifecycle.RegisterListener(AddonEvent.PreDraw, "_PartyList", this.partyListTargetMarkerDisplay.OnPreDraw);
+        AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "_PartyList", this.partyListTargetMarkerDisplay.OnFinalize);
         Framework.Update += this.OnFrameworkUpdate;
     }
 
@@ -107,8 +111,12 @@ public sealed class Plugin : IDalamudPlugin
         AddonLifecycle.UnregisterListener(
             this.partyListBarrierHpDisplay.OnPartyListPostUpdate,
             this.partyListBarrierHpDisplay.OnPartyListPreFinalize);
+        AddonLifecycle.UnregisterListener(
+            this.partyListTargetMarkerDisplay.OnPreDraw,
+            this.partyListTargetMarkerDisplay.OnFinalize);
         Framework.Update -= this.OnFrameworkUpdate;
 
+        this.partyListTargetMarkerDisplay.Dispose();
         this.partyListBarrierHpDisplay.Dispose();
         this.partySearchNamePlateDisplay.Dispose();
         instance = null;
@@ -266,3 +274,4 @@ public sealed class Plugin : IDalamudPlugin
 
     private sealed record PartyInviteRequest(ulong GameObjectId, string PlayerName);
 }
+
