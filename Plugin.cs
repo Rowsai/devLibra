@@ -74,6 +74,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly WindowSystem windowSystem = new("devLibra");
     private readonly MainWindow mainWindow;
     private readonly PartyListSorter partyListSorter;
+    private readonly EnemyDotNameplateDisplay enemyDotNameplateDisplay;
     private readonly PartyListTargetMarkerDisplay partyListTargetMarkerDisplay;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
     private readonly PartySearchNamePlateDisplay partySearchNamePlateDisplay;
@@ -85,6 +86,7 @@ public sealed class Plugin : IDalamudPlugin
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         Configuration.OriginalTargetMarkerOrder = TargetMarkerSortOrder.Normalize(Configuration.OriginalTargetMarkerOrder);
         this.partyListSorter = new PartyListSorter();
+        this.enemyDotNameplateDisplay = new EnemyDotNameplateDisplay();
 
         this.mainWindow = new MainWindow();
         this.partyListTargetMarkerDisplay = new PartyListTargetMarkerDisplay();
@@ -124,6 +126,7 @@ public sealed class Plugin : IDalamudPlugin
 
         this.partyListTargetMarkerDisplay.Dispose();
         this.partyListSorter.Dispose();
+        this.enemyDotNameplateDisplay.Dispose();
         this.partyListBarrierHpDisplay.Dispose();
         this.partySearchNamePlateDisplay.Dispose();
         instance = null;
@@ -140,6 +143,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void DrawUi()
     {
+        this.enemyDotNameplateDisplay.Draw();
         this.DrawPartySearchTargetLines();
         this.windowSystem.Draw();
     }
@@ -180,6 +184,9 @@ public sealed class Plugin : IDalamudPlugin
     {
         PluginInterface.SavePluginConfig(Configuration);
     }
+
+    internal static bool DotCommandRegistered => instance?.enemyDotNameplateDisplay.CommandRegistered ?? false;
+    internal static string? DotCatalogError => instance?.enemyDotNameplateDisplay.CatalogError;
 
     internal static IReadOnlyList<BarrierHpDebugInfo> GetBarrierHpDebugInfo()
         => instance?.partyListBarrierHpDisplay.GetDebugInfo()

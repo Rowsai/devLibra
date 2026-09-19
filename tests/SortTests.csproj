@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\TargetMarkerSortOrder.cs" Link="TargetMarkerSortOrder.cs" />
+    <Compile Include="..\DotDisplayRules.cs" Link="DotDisplayRules.cs" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,14 @@
 
 ## 主な機能
 
+### View DoT Icons
+
+- 自分が付与したDoTのアイコンを、表示中の敵ネームプレートの上・右・左に表示します。
+- アイコン内に残り秒数を重ね、複数のDoTは横並びで表示します。
+- `View DoT Icons` タブの「有効」で切り替えます。初期値はOFFです。
+- `/dl show dot` でもON/OFFを切り替え、設定を保存します。タブに現在の状態とコマンドの使用可否を表示します。
+- 詳細と実機確認項目は [View DoT Icons](VIEW_DOT_ICONS.md) を参照してください。
+
 ### Change Party Icons
 
 - パーティメンバーに付与されたターゲットマーカーをジョブアイコンの位置に表示します。
@@ -59,4 +67,7 @@ https://raw.githubusercontent.com/Rowsai/Rowsai-Plugins/refs/heads/main/pluginma
 
 ## 最新版
 
-このソースは **v0.0.0.25（Change Party Icons・ソート機能追加版）** です。リモートへの公開は行っていません。同梱の `repo.json` は移植前の公開版メタデータを保持しており、このローカルビルドの導入には使用しません。`build-release.ps1` でリリース資材 `bin/Release/latest.zip` を生成できます。
+このソースは **v1.0.0.0** です。リモートへの公開は行っていません。同梱の `repo.json` は移植前の公開版メタデータを保持しており、このローカルビルドの導入には使用しません。`build-release.ps1` でリリース資材 `bin/Release/latest.zip` を生成できます。
+
+
+

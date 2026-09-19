@@ -90,3 +90,4 @@ foreach (var invalid in new[] { new[] { 1, 0 }, new[] { 0, 1, 1 }, new[] { 0, 3 
     Check(rejected, "Reject invalid native plan");
 }
 Console.WriteLine($"PASS: {assertions} assertions; 5040 complete permutations; 1000 mixed-marker scenarios.");
+DotRulesTests.Run();

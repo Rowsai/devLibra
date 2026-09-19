@@ -90,6 +90,42 @@ public sealed class MainWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("View DoT Icons"))
+            {
+                var dotEnabled = Plugin.Configuration.ViewDotIconsEnabled;
+                if (ImGui.Checkbox("有効##ViewDotIcons", ref dotEnabled))
+                {
+                    Plugin.Configuration.ViewDotIconsEnabled = dotEnabled;
+                    Plugin.SaveConfiguration();
+                }
+                var iconSize = Math.Clamp(Plugin.Configuration.DotIconSize, 16, 64);
+                if (ImGui.SliderInt("アイコンサイズ", ref iconSize, 16, 64, "%d px"))
+                {
+                    Plugin.Configuration.DotIconSize = iconSize;
+                    Plugin.SaveConfiguration();
+                }
+                var timerFontSize = Math.Clamp(Plugin.Configuration.DotTimerFontSize, 8, 48);
+                if (ImGui.SliderInt("数値サイズ", ref timerFontSize, 8, 48, "%d px"))
+                {
+                    Plugin.Configuration.DotTimerFontSize = timerFontSize;
+                    Plugin.SaveConfiguration();
+                }
+                ImGui.TextDisabled("数値がアイコン内に収まらない場合は、自動で縮小します。");
+                var iconPosition = Math.Clamp(Plugin.Configuration.DotIconPosition, 0, 2);
+                if (ImGui.Combo("表示位置", ref iconPosition, "上\0右\0左\0"))
+                {
+                    Plugin.Configuration.DotIconPosition = iconPosition;
+                    Plugin.SaveConfiguration();
+                }
+                ImGui.TextUnformatted($"/dl show dot : 表示 {(dotEnabled ? "ON（有効）" : "OFF（無効）")}");
+                ImGui.TextUnformatted(Plugin.DotCommandRegistered
+                    ? "コマンド: 使用可能（実行するとON/OFFを切り替えます）"
+                    : "コマンド: 使用不可（/dl が他のプラグインと競合しています）");
+                ImGui.TextDisabled("自分が付与したDoTのみ表示します。アイコン内の数字は残り秒数です。");
+                if (Plugin.DotCatalogError is { } error) ImGui.TextWrapped(error);
+                ImGui.EndTabItem();
+            }
+
             ImGui.EndTabBar();
         }
     }

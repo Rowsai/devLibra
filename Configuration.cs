@@ -9,6 +9,15 @@ public sealed class Configuration : IPluginConfiguration
 
     public bool ChangePartyIconsEnabled { get; set; } = true;
 
+    public bool ViewDotIconsEnabled { get; set; }
+
+    public int DotIconSize { get; set; } = 32;
+
+    public int DotTimerFontSize { get; set; } = 16;
+
+    /// <summary>0 = above, 1 = right, 2 = left.</summary>
+    public int DotIconPosition { get; set; }
+
     public bool OriginalTargetMarkerSortEnabled { get; set; }
 
     public bool OriginalTargetMarkerSortDescending { get; set; }
