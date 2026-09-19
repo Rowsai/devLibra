@@ -80,6 +80,7 @@ public sealed class MainWindow : Window
 
             if (ImGui.BeginTabItem("Change Party Icons"))
             {
+                if (!Plugin.PvpAllowsChangePartyIcons) ImGui.TextDisabled("PvP設定により現在停止中です。");
                 var enabled = Plugin.Configuration.ChangePartyIconsEnabled;
                 if (ImGui.Checkbox("有効##ChangePartyIcons", ref enabled))
                 {
@@ -92,6 +93,7 @@ public sealed class MainWindow : Window
 
             if (ImGui.BeginTabItem("View DoT Icons"))
             {
+                if (!Plugin.PvpAllowsViewDotIcons) ImGui.TextDisabled("PvP設定により現在停止中です。");
                 var dotEnabled = Plugin.Configuration.ViewDotIconsEnabled;
                 if (ImGui.Checkbox("有効##ViewDotIcons", ref dotEnabled))
                 {
@@ -121,8 +123,34 @@ public sealed class MainWindow : Window
                 ImGui.TextUnformatted(Plugin.DotCommandRegistered
                     ? "コマンド: 使用可能（実行するとON/OFFを切り替えます）"
                     : "コマンド: 使用不可（/dl が他のプラグインと競合しています）");
-                ImGui.TextDisabled("自分が付与したDoTのみ表示します。アイコン内の数字は残り秒数です。");
+                ImGui.TextDisabled("自分が付与したDoTとデスデザインを表示します。数字は残り秒数です。");
                 if (Plugin.DotCatalogError is { } error) ImGui.TextWrapped(error);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Which Activate to PVP"))
+            {
+                ImGui.TextWrapped("チェックした機能はPvPコンテンツ参加中も使用を許可します。各機能の通常設定も有効である必要があります。");
+                ImGui.TextWrapped("チェックを外した機能はPvP参加中のみ停止し、退出後は通常設定に戻ります。ウルヴズジェイル係船場は対象外です。");
+                ImGui.TextUnformatted(Plugin.InPvpContent ? "現在: PvP制限を適用中" : "現在: 通常設定を適用中");
+                var config = Plugin.Configuration;
+                var barrier = config.PvpAllowBarrierHp;
+                var search = config.PvpAllowPartySearch;
+                var icons = config.PvpAllowChangePartyIcons;
+                var dots = config.PvpAllowViewDotIcons;
+                var changed = ImGui.Checkbox("Barrier HP", ref barrier);
+                changed |= ImGui.Checkbox("PartySearch", ref search);
+                changed |= ImGui.Checkbox("Change Party Icons", ref icons);
+                changed |= ImGui.Checkbox("View DoT Icons", ref dots);
+                if (changed)
+                {
+                    config.PvpAllowBarrierHp = barrier;
+                    config.PvpAllowPartySearch = search;
+                    config.PvpAllowChangePartyIcons = icons;
+                    config.PvpAllowViewDotIcons = dots;
+                    Plugin.SaveConfiguration();
+                    Plugin.RequestPartySearchNamePlateRedraw();
+                }
                 ImGui.EndTabItem();
             }
 
@@ -193,6 +221,7 @@ public sealed class MainWindow : Window
 
     private void DrawBarrierHpTab()
     {
+        if (!Plugin.PvpAllowsBarrierHp) ImGui.TextDisabled("PvP設定により現在停止中です。");
         ImGui.TextUnformatted("Party-list HP display");
         ImGui.Separator();
 
@@ -288,6 +317,7 @@ public sealed class MainWindow : Window
 
     private void DrawPartySearchTab()
     {
+        if (!Plugin.PvpAllowsPartySearch) ImGui.TextDisabled("PvP設定により現在停止中です。");
         ImGui.TextUnformatted("Show the content-participation icon on nearby solo players' nameplates.");
         ImGui.TextDisabled("Only other players within 100m are affected. The feature is disabled while you are in combat.");
         ImGui.Separator();
@@ -365,7 +395,9 @@ public sealed class MainWindow : Window
 
         ImGui.Spacing();
         ImGui.TextDisabled(
-            Plugin.Condition[ConditionFlag.InCombat]
+            !Plugin.PvpAllowsPartySearch || !Plugin.Configuration.PartySearchEnabled
+                ? "Inactive: disabled by settings."
+                : Plugin.Condition[ConditionFlag.InCombat]
                 ? "Inactive: you are currently in combat."
                 : "Active: checking other players within 100m.");
 

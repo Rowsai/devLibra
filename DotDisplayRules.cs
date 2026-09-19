@@ -6,6 +6,12 @@ namespace devLibra;
 
 internal static class DotDisplayRules
 {
+    internal const uint DeathsDesignStatusId = 2586;
+
+    internal static bool IsSupportedStatus(uint statusId, byte category, uint icon, string description)
+        => category == 2 && icon != 0 &&
+           (statusId == DeathsDesignStatusId || IsDot(category, icon, description));
+
     // Read the English sheet regardless of the user's client language. Require
     // a description of actual periodic damage, not merely a damage modifier.
     private static readonly Regex PeriodicDamage = new(

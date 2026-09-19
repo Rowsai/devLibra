@@ -106,12 +106,13 @@ internal unsafe sealed class PartySearchNamePlateDisplay : IDisposable
     }
 
     private bool IsFeatureActive()
-        => Plugin.Configuration.PartySearchEnabled
+        => Plugin.PvpAllowsPartySearch && Plugin.Configuration.PartySearchEnabled
            && Plugin.ObjectTable.LocalPlayer != null
            && !Plugin.Condition[ConditionFlag.InCombat];
 
     internal IReadOnlyList<NearbyNameplatePlayerInfo> GetNearbyPlayers()
     {
+        if (!Plugin.PvpAllowsPartySearch) return Array.Empty<NearbyNameplatePlayerInfo>();
         var localPlayer = Plugin.ObjectTable.LocalPlayer;
         if (localPlayer == null)
             return Array.Empty<NearbyNameplatePlayerInfo>();

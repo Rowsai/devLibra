@@ -71,6 +71,12 @@ public sealed class Plugin : IDalamudPlugin
 
     internal static Configuration Configuration { get; private set; } = null!;
 
+    internal static bool InPvpContent => ClientState.IsPvPExcludingDen;
+    internal static bool PvpAllowsBarrierHp => !InPvpContent || Configuration.PvpAllowBarrierHp;
+    internal static bool PvpAllowsPartySearch => !InPvpContent || Configuration.PvpAllowPartySearch;
+    internal static bool PvpAllowsChangePartyIcons => !InPvpContent || Configuration.PvpAllowChangePartyIcons;
+    internal static bool PvpAllowsViewDotIcons => !InPvpContent || Configuration.PvpAllowViewDotIcons;
+
     private readonly WindowSystem windowSystem = new("devLibra");
     private readonly MainWindow mainWindow;
     private readonly PartyListSorter partyListSorter;
@@ -150,7 +156,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void DrawPartySearchTargetLines()
     {
-        if (!Configuration.PartySearchEnabled
+        if (!PvpAllowsPartySearch || !Configuration.PartySearchEnabled
             || !Configuration.PartySearchDrawTargetLines
             || Condition[ConditionFlag.InCombat])
             return;
@@ -201,6 +207,7 @@ public sealed class Plugin : IDalamudPlugin
 
     internal static unsafe bool CanInviteToParty(IPlayerCharacter player)
     {
+        if (!PvpAllowsPartySearch) return false;
         if (ObjectTable.LocalPlayer == null || string.IsNullOrWhiteSpace(player.Name.TextValue))
             return false;
 

@@ -57,6 +57,11 @@ internal sealed unsafe class PartyListSorter : IDisposable
             }
             else if (expectedOrder != null)
             {
+                if (!Plugin.PvpAllowsChangePartyIcons)
+                {
+                    expectedOrder = null;
+                    return;
+                }
                 if (TrySnapshot(out var actual, out _) && actual.SequenceEqual(expectedOrder))
                     expectedOrder = null;
                 else if (Environment.TickCount64 >= verificationDeadline)
@@ -76,6 +81,11 @@ internal sealed unsafe class PartyListSorter : IDisposable
 
     private void Execute(PartySortMode mode)
     {
+        if (!Plugin.PvpAllowsChangePartyIcons)
+        {
+            Plugin.ChatGui.PrintError("[devLibra]PvP設定により、参加中のパーティ並び替えは無効です。");
+            return;
+        }
         if (mode == PartySortMode.Original && !Plugin.Configuration.OriginalTargetMarkerSortEnabled)
         {
             Plugin.ChatGui.PrintError(OriginalDisabled);

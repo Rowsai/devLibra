@@ -51,3 +51,8 @@ View DoT Icons タブで、アイコンサイズを16～64pxのスライダー�
 構造の参照: [AddonNamePlate](https://github.com/aers/FFXIVClientStructs/blob/main/FFXIVClientStructs/FFXIV/Client/UI/AddonNamePlate.cs)、[NamePlateNumberArray](https://github.com/aers/FFXIVClientStructs/blob/main/FFXIVClientStructs/FFXIV/Client/UI/Arrays/NamePlateNumberArray.cs)。
 
 
+
+## v1.0.0.0 追加対応（バージョン変更なし）
+
+DoTに加え、自分が付与したデスデザイン（Status ID 2586）を例外として表示します。他のDoT以外のデバフは対象外です。残り時間、アイコンサイズ、数値サイズ、位置設定は共通です。他人が付与したデスデザインは表示しません。
+

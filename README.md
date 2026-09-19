@@ -67,7 +67,21 @@ https://raw.githubusercontent.com/Rowsai/Rowsai-Plugins/refs/heads/main/pluginma
 
 ## 最新版
 
-このソースは **v1.0.0.0** です。リモートへの公開は行っていません。同梱の `repo.json` は移植前の公開版メタデータを保持しており、このローカルビルドの導入には使用しません。`build-release.ps1` でリリース資材 `bin/Release/latest.zip` を生成できます。
+このソースは **v1.0.0.1** です。リモートへの公開は行っていません。同梱の `repo.json` は移植前の公開版メタデータを保持しており、このローカルビルドの導入には使用しません。`build-release.ps1` でリリース資材 `bin/Release/latest.zip` を生成できます。
 
 
 
+
+
+## Which Activate to PVP（v1.0.0.1）
+
+4つのチェックボックスで、Barrier HP / PartySearch / Change Party Icons / View DoT IconsのPvP参加中の使用を許可できます。初期値は全てOFFです。チェックなしの機能は各タブの通常設定がONでもPvP中は停止します。チェックありでも通常設定がOFFの機能を強制的にONにはしません。
+
+PvP判定はDalamudのIsPvPExcludingDenを使い、ウルヴズジェイル係船場は除外します。通常設定を書き換えずに制限するため、退出後は元の設定で再開します。設定変更は自動保存し、各機能のタブにPvPによる停止状態を表示します。
+
+- Barrier HP: HP表示を通常値・通常色に戻し、計算と表示変更を停止。
+- PartySearch: 名前変更、色変更、線、近隣一覧、招待処理を停止。名前の再描画を要求。
+- Change Party Icons: ジョブアイコンを復元。/sortによる並び替えも停止。
+- View DoT Icons: DoTとデスデザインの表示を停止。/dl show dotで通常設定を変更してもPvP中の制限を優先。
+
+Releaseビルド成功（既存警告5件・エラー0）。既存のソートおよびDoTロジックテスト成功。PvP入場・退出、参加中の設定変更、表示の復元はゲーム内未検証です。

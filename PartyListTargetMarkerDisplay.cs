@@ -30,7 +30,7 @@ internal sealed unsafe class PartyListTargetMarkerDisplay : IDisposable
             Forget();
             trackedAddon = (nint)addon;
         }
-        if (!Plugin.Configuration.ChangePartyIconsEnabled)
+        if (!Plugin.PvpAllowsChangePartyIcons || !Plugin.Configuration.ChangePartyIconsEnabled)
         {
             Restore(addon);
             return;

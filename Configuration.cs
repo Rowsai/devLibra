@@ -7,6 +7,11 @@ public sealed class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 5;
 
+    public bool PvpAllowBarrierHp { get; set; }
+    public bool PvpAllowPartySearch { get; set; }
+    public bool PvpAllowChangePartyIcons { get; set; }
+    public bool PvpAllowViewDotIcons { get; set; }
+
     public bool ChangePartyIconsEnabled { get; set; } = true;
 
     public bool ViewDotIconsEnabled { get; set; }

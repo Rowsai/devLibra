@@ -28,10 +28,11 @@ internal sealed unsafe class EnemyDotNameplateDisplay : IDisposable
         try
         {
             foreach (var row in Plugin.DataManager.GetExcelSheet<StatusRow>(ClientLanguage.English))
-                if (DotDisplayRules.IsDot(row.StatusCategory, row.Icon, row.Description.ExtractText()))
+                if (DotDisplayRules.IsSupportedStatus(row.RowId, row.StatusCategory, row.Icon, row.Description.ExtractText()))
                     dotIcons[row.RowId] = row.Icon;
-            if (!dotIcons.ContainsKey(1895) || !dotIcons.ContainsKey(1871))
-                throw new InvalidOperationException("The DoT catalog is missing Biolysis or Dia.");
+            if (!dotIcons.ContainsKey(1895) || !dotIcons.ContainsKey(1871) ||
+                !dotIcons.ContainsKey(DotDisplayRules.DeathsDesignStatusId))
+                throw new InvalidOperationException("The status catalog is missing Biolysis, Dia or Death's Design.");
         }
         catch (Exception ex)
         {
@@ -57,11 +58,13 @@ internal sealed unsafe class EnemyDotNameplateDisplay : IDisposable
         Plugin.Configuration.ViewDotIconsEnabled = !Plugin.Configuration.ViewDotIconsEnabled;
         Plugin.SaveConfiguration();
         Plugin.ChatGui.Print($"[devLibra]View DoT Icons: {(Plugin.Configuration.ViewDotIconsEnabled ? "ON" : "OFF")}");
+        if (!Plugin.PvpAllowsViewDotIcons)
+            Plugin.ChatGui.Print("[devLibra]PvP設定により、参加中のDoT表示は停止しています。");
     }
 
     public void Draw()
     {
-        if (!Plugin.Configuration.ViewDotIconsEnabled || CatalogError != null) return;
+        if (!Plugin.PvpAllowsViewDotIcons || !Plugin.Configuration.ViewDotIconsEnabled || CatalogError != null) return;
         var local = Plugin.ObjectTable.LocalPlayer;
         if (local == null) return;
         try { DrawNameplates(local.EntityId); }

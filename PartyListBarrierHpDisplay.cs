@@ -84,6 +84,26 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
         if (partyList == null || partyListData == null)
             return;
 
+        if (!Plugin.PvpAllowsBarrierHp)
+        {
+            // Restore the HP values as well as their colors once, then stop
+            // calculations and native writes until the feature is allowed again.
+            if (this.defaultTextColors.Count > 0)
+            {
+                for (var index = 0; index < 8; index++)
+                {
+                    var member = partyList->PartyMembers[index];
+                    var data = partyListData->PartyMembers[index];
+                    if (member.HPGaugeComponent != null && data.MaxHealth > 0)
+                        this.SetHpText(member.HPGaugeComponent, data.CurrentHealth, false);
+                }
+                this.RestorePartyListHp();
+            }
+            this.memberStates.Clear();
+            this.debugInfo.Clear();
+            return;
+        }
+
         this.TryResolveGalvanizeStatusIds();
         this.debugInfo.Clear();
 

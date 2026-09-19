@@ -11,6 +11,11 @@ internal static class DotRulesTests
             assertions++;
         }
         // Description forms observed in the game's English Status sheet.
+        Check(DotDisplayRules.IsSupportedStatus(2586, 2, 212926, "Damage taken from the caster is increased."), "Death's Design exception");
+        Check(!DotDisplayRules.IsSupportedStatus(2587, 2, 212926, "Damage taken from the caster is increased."), "Other non-DoT debuffs excluded");
+        Check(!DotDisplayRules.IsSupportedStatus(2586, 1, 212926, ""), "Exception still requires debuff");
+        Check(!DotDisplayRules.IsSupportedStatus(2586, 2, 0, ""), "Exception still requires icon");
+        Check(DotDisplayRules.IsSupportedStatus(1871, 2, 212635, "Sustaining damage over time."), "Existing DoTs remain supported");
         foreach (var description in new[]
         {
             "Sustaining damage over time.", // Biolysis, Dia, Combust III, etc.
