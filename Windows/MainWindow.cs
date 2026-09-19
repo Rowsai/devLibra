@@ -86,11 +86,73 @@ public sealed class MainWindow : Window
                     Plugin.Configuration.ChangePartyIconsEnabled = enabled;
                     Plugin.SaveConfiguration();
                 }
+                this.DrawTargetMarkerSortSettings();
                 ImGui.EndTabItem();
             }
 
             ImGui.EndTabBar();
         }
+    }
+
+    private unsafe void DrawTargetMarkerSortSettings()
+    {
+        ImGui.Separator();
+        var config = Plugin.Configuration;
+        var enabled = config.OriginalTargetMarkerSortEnabled;
+        if (ImGui.Checkbox("オリジナルのソート順を有効化", ref enabled))
+        {
+            config.OriginalTargetMarkerSortEnabled = enabled;
+            Plugin.SaveConfiguration();
+        }
+        if (!enabled) return;
+
+        var direction = config.OriginalTargetMarkerSortDescending ? 1 : 0;
+        if (ImGui.Combo("並び順", ref direction, "昇順（上から順）\0降順（下から順）\0"))
+        {
+            config.OriginalTargetMarkerSortDescending = direction == 1;
+            Plugin.SaveConfiguration();
+        }
+        ImGui.TextUnformatted("ドラッグして優先順位を変更し、/sort tm original で適用します。");
+        ImGui.TextDisabled("自分の先頭行と対象外メンバーの位置は維持します。");
+        if (ImGui.BeginChild("TargetMarkerOrder", new Vector2(0, 0)))
+        {
+            var order = config.OriginalTargetMarkerOrder;
+            var sourceIndex = -1;
+            var destinationIndex = -1;
+            for (var i = 0; i < order.Length; i++)
+            {
+                ImGui.PushID(order[i]);
+                ImGui.Selectable($"{i + 1}. {TargetMarkerSortOrder.Label(order[i])}");
+                if (ImGui.BeginDragDropSource())
+                {
+                    var marker = order[i];
+                    ImGui.SetDragDropPayload("DEVLIBRA_TM_ORDER", new ReadOnlySpan<byte>(&marker, sizeof(int)));
+                    ImGui.TextUnformatted(TargetMarkerSortOrder.Label(marker));
+                    ImGui.EndDragDropSource();
+                }
+                if (ImGui.BeginDragDropTarget())
+                {
+                    var payload = ImGui.AcceptDragDropPayload("DEVLIBRA_TM_ORDER");
+                    if (!payload.IsNull && payload.DataSize == sizeof(int))
+                    {
+                        sourceIndex = Array.IndexOf(order, *(int*)payload.Data);
+                        destinationIndex = i;
+                    }
+                    ImGui.EndDragDropTarget();
+                }
+                ImGui.PopID();
+            }
+            if (sourceIndex >= 0 && destinationIndex >= 0 && sourceIndex != destinationIndex)
+            {
+                var reordered = order.ToList();
+                var marker = reordered[sourceIndex];
+                reordered.RemoveAt(sourceIndex);
+                reordered.Insert(destinationIndex, marker);
+                config.OriginalTargetMarkerOrder = reordered.ToArray();
+                Plugin.SaveConfiguration();
+            }
+        }
+        ImGui.EndChild();
     }
 
     private void DrawBarrierHpTab()

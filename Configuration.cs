@@ -9,6 +9,12 @@ public sealed class Configuration : IPluginConfiguration
 
     public bool ChangePartyIconsEnabled { get; set; } = true;
 
+    public bool OriginalTargetMarkerSortEnabled { get; set; }
+
+    public bool OriginalTargetMarkerSortDescending { get; set; }
+
+    public int[] OriginalTargetMarkerOrder { get; set; } = TargetMarkerSortOrder.DefaultOrder();
+
     public bool ShowBarrierAdjustedHp { get; set; }
 
     public bool PartySearchEnabled { get; set; } = true;

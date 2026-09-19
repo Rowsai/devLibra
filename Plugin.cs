@@ -66,10 +66,14 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService]
     internal static IPluginLog Log { get; private set; } = null!;
 
+    [PluginService]
+    internal static IChatGui ChatGui { get; private set; } = null!;
+
     internal static Configuration Configuration { get; private set; } = null!;
 
     private readonly WindowSystem windowSystem = new("devLibra");
     private readonly MainWindow mainWindow;
+    private readonly PartyListSorter partyListSorter;
     private readonly PartyListTargetMarkerDisplay partyListTargetMarkerDisplay;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
     private readonly PartySearchNamePlateDisplay partySearchNamePlateDisplay;
@@ -79,6 +83,8 @@ public sealed class Plugin : IDalamudPlugin
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        Configuration.OriginalTargetMarkerOrder = TargetMarkerSortOrder.Normalize(Configuration.OriginalTargetMarkerOrder);
+        this.partyListSorter = new PartyListSorter();
 
         this.mainWindow = new MainWindow();
         this.partyListTargetMarkerDisplay = new PartyListTargetMarkerDisplay();
@@ -117,6 +123,7 @@ public sealed class Plugin : IDalamudPlugin
         Framework.Update -= this.OnFrameworkUpdate;
 
         this.partyListTargetMarkerDisplay.Dispose();
+        this.partyListSorter.Dispose();
         this.partyListBarrierHpDisplay.Dispose();
         this.partySearchNamePlateDisplay.Dispose();
         instance = null;
@@ -199,6 +206,7 @@ public sealed class Plugin : IDalamudPlugin
     // carry out the request on the next game framework update instead.
     private void OnFrameworkUpdate(IFramework framework)
     {
+        this.partyListSorter.Update();
         while (this.partyInviteRequests.TryDequeue(out var request))
         {
             try
