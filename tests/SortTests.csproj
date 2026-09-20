@@ -8,5 +8,6 @@
   <ItemGroup>
     <Compile Include="..\TargetMarkerSortOrder.cs" Link="TargetMarkerSortOrder.cs" />
     <Compile Include="..\DotDisplayRules.cs" Link="DotDisplayRules.cs" />
+    <Compile Include="..\DotVisualTimeline.cs" Link="DotVisualTimeline.cs" />
   </ItemGroup>
 </Project>

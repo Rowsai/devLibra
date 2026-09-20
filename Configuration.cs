@@ -19,6 +19,10 @@ public sealed class Configuration : IPluginConfiguration
     public int DotIconSize { get; set; } = 32;
 
     public int DotTimerFontSize { get; set; } = 16;
+    public Vector4 DotTimerTextColor { get; set; } = Vector4.One;
+    public bool DotTimerOutlineEnabled { get; set; } = true;
+    public Vector4 DotTimerOutlineColor { get; set; } = new(0, 0, 0, 1);
+    public float DotTimerOutlineThickness { get; set; } = 1f;
 
     /// <summary>0 = above, 1 = right, 2 = left.</summary>
     public int DotIconPosition { get; set; }

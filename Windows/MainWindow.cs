@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -25,8 +25,8 @@ public sealed class MainWindow : Window
 
     public MainWindow()
         : base(
-            "devLibra",
-            ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+            $"devLibra  v{typeof(Plugin).Assembly.GetName().Version}###devLibra",
+            ImGuiWindowFlags.None)
     {
         this.Size = new Vector2(1400, 800);
         this.SizeCondition = ImGuiCond.FirstUseEver;
@@ -34,33 +34,41 @@ public sealed class MainWindow : Window
 
     public override void Draw()
     {
-        if (ImGui.BeginTabBar("devLibraTabs"))
+        ImGui.TextColored(new Vector4(0.35f, 0.75f, 1f, 1f), "devLibra / コントロールパネル");
+        ImGui.TextDisabled("便利機能の状態確認とカスタマイズ");
+        ImGui.Spacing();
+        if (ImGui.BeginTabBar("devLibraTabs", ImGuiTabBarFlags.FittingPolicyScroll))
         {
-            if (ImGui.BeginTabItem("PartyMember"))
+            if (ImGui.BeginTabItem("General"))
+            {
+                this.DrawGeneralTab();
+                ImGui.EndTabItem();
+            }
+            if (ImGui.BeginTabItem("プレイヤー情報###PartyMember"))
             {
                 this.DrawPartyMemberTab();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("EnemyCasting"))
+            if (ImGui.BeginTabItem("敵の詠唱###EnemyCasting"))
             {
                 this.DrawEnemyCastingTab();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("EnemyStatus"))
+            if (ImGui.BeginTabItem("敵の状態###EnemyStatus"))
             {
                 this.DrawEnemyStatusTab();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("StatusSearch"))
+            if (ImGui.BeginTabItem("ステータス検索###StatusSearch"))
             {
                 this.DrawStatusSearchTab();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("ActionSearch"))
+            if (ImGui.BeginTabItem("アクション検索###ActionSearch"))
             {
                 this.DrawActionSearchTab();
                 ImGui.EndTabItem();
@@ -113,6 +121,33 @@ public sealed class MainWindow : Window
                     Plugin.SaveConfiguration();
                 }
                 ImGui.TextDisabled("数値がアイコン内に収まらない場合は、自動で縮小します。");
+                var textColor = Plugin.Configuration.DotTimerTextColor;
+                if (ImGui.ColorEdit4("文字色", ref textColor, ImGuiColorEditFlags.AlphaBar))
+                {
+                    Plugin.Configuration.DotTimerTextColor = textColor;
+                    Plugin.SaveConfiguration();
+                }
+                var outlineEnabled = Plugin.Configuration.DotTimerOutlineEnabled;
+                if (ImGui.Checkbox("文字を縁取りする", ref outlineEnabled))
+                {
+                    Plugin.Configuration.DotTimerOutlineEnabled = outlineEnabled;
+                    Plugin.SaveConfiguration();
+                }
+                if (outlineEnabled)
+                {
+                    var outlineColor = Plugin.Configuration.DotTimerOutlineColor;
+                    if (ImGui.ColorEdit4("縁取りの色", ref outlineColor, ImGuiColorEditFlags.AlphaBar))
+                    {
+                        Plugin.Configuration.DotTimerOutlineColor = outlineColor;
+                        Plugin.SaveConfiguration();
+                    }
+                    var thickness = Plugin.Configuration.DotTimerOutlineThickness;
+                    if (ImGui.SliderFloat("縁取りの太さ", ref thickness, 0.5f, 3f, "%.1f px"))
+                    {
+                        Plugin.Configuration.DotTimerOutlineThickness = thickness;
+                        Plugin.SaveConfiguration();
+                    }
+                }
                 var iconPosition = Math.Clamp(Plugin.Configuration.DotIconPosition, 0, 2);
                 if (ImGui.Combo("表示位置", ref iconPosition, "上\0右\0左\0"))
                 {
@@ -158,6 +193,62 @@ public sealed class MainWindow : Window
         }
     }
 
+    private void DrawGeneralTab()
+    {
+        var config = Plugin.Configuration;
+        var loggedIn = Plugin.ObjectTable.LocalPlayer != null;
+        var inCombat = Plugin.Condition[ConditionFlag.InCombat];
+        ImGui.Spacing();
+        ImGui.TextUnformatted("便利機能の稼働状況");
+        ImGui.TextDisabled("設定と現在の状態を一覧表示します。各機能の設定は該当タブから変更できます。");
+        ImGui.TextUnformatted(!loggedIn ? "接続状態：ログイン待ち" : Plugin.InPvpContent
+            ? "プレイ状態：PvPコンテンツ参加中" : inCombat ? "プレイ状態：戦闘中" : "プレイ状態：通常");
+        ImGui.Spacing();
+        if (ImGui.BeginTable("GeneralFeatures", 4, ImGuiTableFlags.RowBg | ImGuiTableFlags.BordersInnerH |
+            ImGuiTableFlags.SizingStretchProp))
+        {
+            ImGui.TableSetupColumn("機能", ImGuiTableColumnFlags.WidthStretch, 1.2f);
+            ImGui.TableSetupColumn("通常設定", ImGuiTableColumnFlags.WidthStretch, 0.6f);
+            ImGui.TableSetupColumn("現在の状態", ImGuiTableColumnFlags.WidthStretch, 1f);
+            ImGui.TableSetupColumn("内容", ImGuiTableColumnFlags.WidthStretch, 2f);
+            ImGui.TableHeadersRow();
+            Row("Barrier HP", config.ShowBarrierAdjustedHp, Plugin.PvpAllowsBarrierHp, null,
+                "パーティリストのHPにバリア量を加算");
+            Row("PartySearch", config.PartySearchEnabled, Plugin.PvpAllowsPartySearch,
+                inCombat ? "戦闘中は停止" : null, "近隣プレイヤーの名前表示・ターゲット線・招待");
+            Row("Change Party Icons", config.ChangePartyIconsEnabled, Plugin.PvpAllowsChangePartyIcons, null,
+                "ジョブアイコンをターゲットマーカーに変更");
+            Row("View DoT Icons", config.ViewDotIconsEnabled, Plugin.PvpAllowsViewDotIcons,
+                Plugin.DotCatalogError != null ? "データ読込エラー" : null, "自分のDoT・デスデザインと残り秒数を表示");
+            Row("オリジナルのソート順", config.OriginalTargetMarkerSortEnabled,
+                Plugin.PvpAllowsChangePartyIcons, Plugin.SortCommandRegistered ? null : "コマンド競合",
+                "/sort tm original で保存した順序を適用");
+            ImGui.EndTable();
+        }
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.TextUnformatted("コマンドガイド");
+        ImGui.BulletText("/devlibra：設定画面を開く・閉じる");
+        ImGui.BulletText("/dl show dot：DoT表示の有効・無効を切り替え");
+        ImGui.BulletText("/sort tm asc / desc / original：マーカー順に並び替え");
+        ImGui.BulletText("/sort default：ゲーム標準の順序に並び替え");
+        if (!Plugin.DotCommandRegistered) ImGui.TextWrapped("/dl は他のプラグインと競合しています。DoT表示は専用タブから切り替えられます。");
+        if (!Plugin.SortCommandRegistered) ImGui.TextWrapped("/sort は他のプラグインと競合しているため使用できません。");
+        ImGui.TextDisabled("「利用可能」は設定上の状態です。表示対象が存在する場合に各表示が反映されます。");
+
+        void Row(string name, bool enabled, bool allowed, string? reason, string description)
+        {
+            var state = !enabled ? "無効" : !loggedIn ? "ログイン待ち" : !allowed ? "PvP設定により停止" : reason ?? "利用可能";
+            var active = enabled && loggedIn && allowed && reason == null;
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0); ImGui.TextUnformatted(name);
+            ImGui.TableSetColumnIndex(1); ImGui.TextUnformatted(enabled ? "有効" : "無効");
+            ImGui.TableSetColumnIndex(2);
+            ImGui.TextColored(active ? new Vector4(0.35f, 0.8f, 1f, 1) : new Vector4(0.60f, 0.69f, 0.8f, 1), state);
+            ImGui.TableSetColumnIndex(3); ImGui.TextWrapped(description);
+        }
+    }
+
     private unsafe void DrawTargetMarkerSortSettings()
     {
         ImGui.Separator();
@@ -186,11 +277,27 @@ public sealed class MainWindow : Window
             for (var i = 0; i < order.Length; i++)
             {
                 ImGui.PushID(order[i]);
-                ImGui.Selectable($"{i + 1}. {TargetMarkerSortOrder.Label(order[i])}");
+                var rowPosition = ImGui.GetCursorScreenPos();
+                var iconSize = ImGui.GetTextLineHeight() * 1.6f;
+                var rowHeight = iconSize + 8f;
+                var texture = Plugin.TextureProvider.GetFromGameIcon(TargetMarkerSortOrder.IconId(order[i])).GetWrapOrDefault();
+                // The entire row remains one drag source/target, including the icon.
+                ImGui.Selectable("##MarkerOrderRow", false, ImGuiSelectableFlags.None, new Vector2(0, rowHeight));
+                var drawList = ImGui.GetWindowDrawList();
+                if (texture != null)
+                    drawList.AddImage(texture.Handle, rowPosition + new Vector2(4, 4),
+                        rowPosition + new Vector2(4 + iconSize, 4 + iconSize));
+                drawList.AddText(rowPosition + new Vector2(iconSize + 16, (rowHeight - ImGui.GetTextLineHeight()) / 2),
+                    ImGui.GetColorU32(ImGuiCol.Text), $"{i + 1}. {TargetMarkerSortOrder.Label(order[i])}");
                 if (ImGui.BeginDragDropSource())
                 {
                     var marker = order[i];
                     ImGui.SetDragDropPayload("DEVLIBRA_TM_ORDER", new ReadOnlySpan<byte>(&marker, sizeof(int)));
+                    if (texture != null)
+                    {
+                        ImGui.Image(texture.Handle, new Vector2(iconSize));
+                        ImGui.SameLine();
+                    }
                     ImGui.TextUnformatted(TargetMarkerSortOrder.Label(marker));
                     ImGui.EndDragDropSource();
                 }
@@ -221,37 +328,38 @@ public sealed class MainWindow : Window
 
     private void DrawBarrierHpTab()
     {
+        ImGui.TextDisabled("Auto Make Timeline: Barrier HP IPC v1");
         if (!Plugin.PvpAllowsBarrierHp) ImGui.TextDisabled("PvP設定により現在停止中です。");
-        ImGui.TextUnformatted("Party-list HP display");
+        ImGui.TextUnformatted("パーティリストのHP表示");
         ImGui.Separator();
 
         var showBarrierAdjustedHp = Plugin.Configuration.ShowBarrierAdjustedHp;
 
-        if (ImGui.Checkbox("Add barriers to displayed HP", ref showBarrierAdjustedHp))
+        if (ImGui.Checkbox("表示HPにバリア量を加算する", ref showBarrierAdjustedHp))
         {
             Plugin.Configuration.ShowBarrierAdjustedHp = showBarrierAdjustedHp;
             Plugin.SaveConfiguration();
         }
 
-        ImGui.TextDisabled("When enabled, the standard party list displays current HP plus shield amount.");
-        ImGui.TextDisabled("HP text is green while a shield is included.");
+        ImGui.TextDisabled("有効にすると、パーティリストに現在HPとバリア量の合計を表示します。");
+        ImGui.TextDisabled("バリア量が含まれている間、HPの数値を緑色で表示します。");
 
         ImGui.Spacing();
         ImGui.Separator();
-        ImGui.TextUnformatted("Debug information");
+        ImGui.TextUnformatted("詳細情報");
 
         if (Plugin.Condition[ConditionFlag.InCombat])
         {
-            ImGui.TextDisabled("Debug information is disabled during combat.");
+            ImGui.TextDisabled("戦闘中は詳細情報を表示しません。");
             return;
         }
 
-        ImGui.TextDisabled("Observed recovery is used for a newly applied Galvanize shield (recovery x 180%).");
+        ImGui.TextDisabled("付与直後の鼓舞バリアは、観測した回復量の180%として算出します。");
 
         var debugInfo = Plugin.GetBarrierHpDebugInfo();
         if (debugInfo.Count == 0)
         {
-            ImGui.TextDisabled("No party-list data is available.");
+            ImGui.TextDisabled("パーティリストの情報を取得できません。");
             return;
         }
 
@@ -265,16 +373,16 @@ public sealed class MainWindow : Window
                 new Vector2(0, 240)))
             return;
 
-        ImGui.TableSetupColumn("Slot");
-        ImGui.TableSetupColumn("Current HP");
-        ImGui.TableSetupColumn("Max HP");
-        ImGui.TableSetupColumn("Shield %");
-        ImGui.TableSetupColumn("Recovery");
-        ImGui.TableSetupColumn("Barrier");
-        ImGui.TableSetupColumn("Display result");
-        ImGui.TableSetupColumn("Calculation");
-        ImGui.TableSetupColumn("Gauge max");
-        ImGui.TableSetupColumn("Gauge values");
+        ImGui.TableSetupColumn("表示順");
+        ImGui.TableSetupColumn("現在HP");
+        ImGui.TableSetupColumn("最大HP");
+        ImGui.TableSetupColumn("バリア率");
+        ImGui.TableSetupColumn("回復量");
+        ImGui.TableSetupColumn("バリア量");
+        ImGui.TableSetupColumn("表示HP");
+        ImGui.TableSetupColumn("算出方法");
+        ImGui.TableSetupColumn("ゲージ最大値");
+        ImGui.TableSetupColumn("ゲージ値");
         ImGui.TableHeadersRow();
 
         foreach (var info in debugInfo)
@@ -318,12 +426,12 @@ public sealed class MainWindow : Window
     private void DrawPartySearchTab()
     {
         if (!Plugin.PvpAllowsPartySearch) ImGui.TextDisabled("PvP設定により現在停止中です。");
-        ImGui.TextUnformatted("Show the content-participation icon on nearby solo players' nameplates.");
-        ImGui.TextDisabled("Only other players within 100m are affected. The feature is disabled while you are in combat.");
+        ImGui.TextUnformatted("近くにいるソロプレイヤーのコンテンツ参加状態をネームプレートで確認できます。");
+        ImGui.TextDisabled("自分以外の100m以内のプレイヤーが対象です。戦闘中は停止します。");
         ImGui.Separator();
 
         var partySearchEnabled = Plugin.Configuration.PartySearchEnabled;
-        if (ImGui.Checkbox("Show content-participation icon", ref partySearchEnabled))
+        if (ImGui.Checkbox("コンテンツ参加状態の表示を有効にする", ref partySearchEnabled))
         {
             Plugin.Configuration.PartySearchEnabled = partySearchEnabled;
             Plugin.SaveConfiguration();
@@ -331,21 +439,21 @@ public sealed class MainWindow : Window
         }
 
         ImGui.Spacing();
-        ImGui.TextUnformatted("Eligible player nameplate settings");
+        ImGui.TextUnformatted("対象プレイヤーのネームプレート");
 
         var displayName = Plugin.Configuration.PartySearchDisplayName;
         ImGui.SetNextItemWidth(320);
-        if (ImGui.InputText("Replacement name", ref displayName, 64))
+        if (ImGui.InputText("置き換える名前", ref displayName, 64))
         {
             Plugin.Configuration.PartySearchDisplayName = displayName;
             Plugin.SaveConfiguration();
             Plugin.RequestPartySearchNamePlateRedraw();
         }
 
-        ImGui.TextDisabled("Leave blank to keep eligible players' normal character names.");
+        ImGui.TextDisabled("空欄の場合は元のキャラクター名を表示します。");
 
         var useCustomColor = Plugin.Configuration.PartySearchUseCustomNameColor;
-        if (ImGui.Checkbox("Use custom name color", ref useCustomColor))
+        if (ImGui.Checkbox("名前の色を変更する", ref useCustomColor))
         {
             Plugin.Configuration.PartySearchUseCustomNameColor = useCustomColor;
             Plugin.SaveConfiguration();
@@ -356,7 +464,7 @@ public sealed class MainWindow : Window
         {
             var nameColor = Plugin.Configuration.PartySearchNameColor;
             ImGui.SetNextItemWidth(260);
-            if (ImGui.ColorEdit4("Name color", ref nameColor, ImGuiColorEditFlags.AlphaBar))
+            if (ImGui.ColorEdit4("名前の色", ref nameColor, ImGuiColorEditFlags.AlphaBar))
             {
                 Plugin.Configuration.PartySearchNameColor = nameColor;
                 Plugin.SaveConfiguration();
@@ -365,10 +473,10 @@ public sealed class MainWindow : Window
         }
 
         ImGui.Spacing();
-        ImGui.TextUnformatted("Eligible player target lines");
+        ImGui.TextUnformatted("対象プレイヤーへのターゲット線");
 
         var drawTargetLines = Plugin.Configuration.PartySearchDrawTargetLines;
-        if (ImGui.Checkbox("Draw lines from your character", ref drawTargetLines))
+        if (ImGui.Checkbox("自分から対象プレイヤーへ線を表示する", ref drawTargetLines))
         {
             Plugin.Configuration.PartySearchDrawTargetLines = drawTargetLines;
             Plugin.SaveConfiguration();
@@ -378,7 +486,7 @@ public sealed class MainWindow : Window
         {
             var lineColor = Plugin.Configuration.PartySearchTargetLineColor;
             ImGui.SetNextItemWidth(260);
-            if (ImGui.ColorEdit4("Line color", ref lineColor, ImGuiColorEditFlags.AlphaBar))
+            if (ImGui.ColorEdit4("線の色", ref lineColor, ImGuiColorEditFlags.AlphaBar))
             {
                 Plugin.Configuration.PartySearchTargetLineColor = lineColor;
                 Plugin.SaveConfiguration();
@@ -386,7 +494,7 @@ public sealed class MainWindow : Window
 
             var lineThickness = Plugin.Configuration.PartySearchTargetLineThickness;
             ImGui.SetNextItemWidth(260);
-            if (ImGui.SliderFloat("Line thickness", ref lineThickness, 1f, 10f, "%.1f px"))
+            if (ImGui.SliderFloat("線の太さ", ref lineThickness, 1f, 10f, "%.1f px"))
             {
                 Plugin.Configuration.PartySearchTargetLineThickness = lineThickness;
                 Plugin.SaveConfiguration();
@@ -396,20 +504,20 @@ public sealed class MainWindow : Window
         ImGui.Spacing();
         ImGui.TextDisabled(
             !Plugin.PvpAllowsPartySearch || !Plugin.Configuration.PartySearchEnabled
-                ? "Inactive: disabled by settings."
+                ? "停止中：設定で無効になっています。"
                 : Plugin.Condition[ConditionFlag.InCombat]
-                ? "Inactive: you are currently in combat."
-                : "Active: checking other players within 100m.");
+                ? "停止中：戦闘中です。"
+                : "有効：100m以内のプレイヤーを確認しています。");
 
         ImGui.Spacing();
         ImGui.Separator();
-        ImGui.TextUnformatted("Players within 100m");
-        ImGui.TextDisabled("Only players showing the yellow content-participation icon are eligible.");
+        ImGui.TextUnformatted("100m以内のプレイヤー");
+        ImGui.TextDisabled("黄色のコンテンツ参加アイコンが表示されているプレイヤーが対象です。");
 
         var nearbyPlayers = Plugin.GetPartySearchNearbyPlayers();
         if (nearbyPlayers.Count == 0)
         {
-            ImGui.TextDisabled("No other players within 100m.");
+            ImGui.TextDisabled("100m以内に他のプレイヤーはいません。");
             return;
         }
 
@@ -420,10 +528,10 @@ public sealed class MainWindow : Window
                 new Vector2(0, 240)))
             return;
 
-        ImGui.TableSetupColumn("Player");
-        ImGui.TableSetupColumn("Distance", ImGuiTableColumnFlags.WidthFixed, 80);
-        ImGui.TableSetupColumn("Status", ImGuiTableColumnFlags.WidthFixed, 160);
-        ImGui.TableSetupColumn("Action", ImGuiTableColumnFlags.WidthFixed, 90);
+        ImGui.TableSetupColumn("プレイヤー");
+        ImGui.TableSetupColumn("距離", ImGuiTableColumnFlags.WidthFixed, 80);
+        ImGui.TableSetupColumn("状態", ImGuiTableColumnFlags.WidthFixed, 160);
+        ImGui.TableSetupColumn("操作", ImGuiTableColumnFlags.WidthFixed, 90);
         ImGui.TableHeadersRow();
 
         var canInvite = !Plugin.Condition[ConditionFlag.InCombat];
@@ -444,15 +552,15 @@ public sealed class MainWindow : Window
 
             ImGui.TableSetColumnIndex(2);
             if (!entry.HasNameplateStatus)
-                ImGui.TextDisabled("Nameplate not visible");
+                ImGui.TextDisabled("ネームプレート未表示");
             else if (!entry.IsContentParticipant)
-                ImGui.TextDisabled("Not joining content");
+                ImGui.TextDisabled("コンテンツ未参加");
             else
-                ImGui.TextUnformatted("Joining content");
+                ImGui.TextUnformatted("コンテンツ参加中");
 
             ImGui.TableSetColumnIndex(3);
             ImGui.BeginDisabled(!canInvitePlayer);
-            if (ImGui.Button($"Invite##{player.GameObjectId}"))
+            if (ImGui.Button($"招待##{player.GameObjectId}"))
             {
                 this.partyInviteTargetGameObjectId = player.GameObjectId;
                 Plugin.InviteToParty(player);
@@ -472,15 +580,15 @@ public sealed class MainWindow : Window
 
     private void DrawPartyMemberTab()
     {
-        ImGui.TextUnformatted("ObjectTable上のプレイヤーに現在付与されているバフ・デバフ情報を表示します。");
-        ImGui.TextDisabled("※ リプレイ確認を前提に、PartyListではなくObjectTable上のIPlayerCharacterを全取得します。");
+        ImGui.TextUnformatted("周囲のプレイヤーに現在付与されているバフ・デバフ情報を表示します。");
+        ImGui.TextDisabled("※ リプレイ確認を前提に、PartyListではなく周囲のIPlayerCharacterを全取得します。");
         ImGui.Separator();
 
         var players = this.GetReplayPlayerCharacters();
 
         if (players.Count == 0)
         {
-            ImGui.TextUnformatted("ObjectTable上にプレイヤー情報が見つかりません。");
+            ImGui.TextUnformatted("周囲にプレイヤー情報が見つかりません。");
             ImGui.TextDisabled("リプレイ再生中のキャラクターがObjectTableに出ていない可能性があります。");
             return;
         }
@@ -497,14 +605,14 @@ public sealed class MainWindow : Window
                 | ImGuiTableFlags.ScrollY,
                 new Vector2(0, 0)))
         {
-            ImGui.TableSetupColumn("Member");
-            ImGui.TableSetupColumn("Job");
-            ImGui.TableSetupColumn("StatusId");
-            ImGui.TableSetupColumn("StatusName");
-            ImGui.TableSetupColumn("Param");
-            ImGui.TableSetupColumn("Remaining");
-            ImGui.TableSetupColumn("SourceId");
-            ImGui.TableSetupColumn("Index");
+            ImGui.TableSetupColumn("メンバー");
+            ImGui.TableSetupColumn("ジョブ");
+            ImGui.TableSetupColumn("ステータスID");
+            ImGui.TableSetupColumn("ステータス名");
+            ImGui.TableSetupColumn("パラメーター");
+            ImGui.TableSetupColumn("残り秒数");
+            ImGui.TableSetupColumn("付与者ID");
+            ImGui.TableSetupColumn("番号");
             ImGui.TableHeadersRow();
 
             foreach (var player in players)
@@ -557,17 +665,17 @@ public sealed class MainWindow : Window
                 | ImGuiTableFlags.ScrollY,
                 new Vector2(0, 0)))
         {
-            ImGui.TableSetupColumn("Enemy");
-            ImGui.TableSetupColumn("EntityId");
-            ImGui.TableSetupColumn("ObjectId");
-            ImGui.TableSetupColumn("ActionId");
-            ImGui.TableSetupColumn("ActionName");
-            ImGui.TableSetupColumn("CastTime");
-            ImGui.TableSetupColumn("CastCurrent");
-            ImGui.TableSetupColumn("CastTotal");
-            ImGui.TableSetupColumn("StatusId");
-            ImGui.TableSetupColumn("Param");
-            ImGui.TableSetupColumn("StatusIndex");
+            ImGui.TableSetupColumn("敵");
+            ImGui.TableSetupColumn("エンティティID");
+            ImGui.TableSetupColumn("オブジェクトID");
+            ImGui.TableSetupColumn("アクションID");
+            ImGui.TableSetupColumn("アクション名");
+            ImGui.TableSetupColumn("詠唱時間");
+            ImGui.TableSetupColumn("詠唱経過");
+            ImGui.TableSetupColumn("詠唱全体");
+            ImGui.TableSetupColumn("ステータスID");
+            ImGui.TableSetupColumn("パラメーター");
+            ImGui.TableSetupColumn("ステータス番号");
             ImGui.TableHeadersRow();
 
             var castingEnemies = this.GetEnemyBattleCharas()
@@ -672,7 +780,7 @@ public sealed class MainWindow : Window
                     ImGui.TextUnformatted($"{totalCast:0.00}");
 
                     ImGui.TableSetColumnIndex(8);
-                    ImGui.TextDisabled("No Status");
+                    ImGui.TextDisabled("ステータスなし");
 
                     ImGui.TableSetColumnIndex(9);
                     ImGui.TextDisabled("-");
@@ -688,7 +796,7 @@ public sealed class MainWindow : Window
 
     private void DrawEnemyStatusTab()
     {
-        ImGui.TextUnformatted("ObjectTable上のエネミーに現在付与されているバフ・デバフ情報を表示します。");
+        ImGui.TextUnformatted("周囲のエネミーに現在付与されているバフ・デバフ情報を表示します。");
         ImGui.TextDisabled("※ BattleNpc の StatusList を表示します。リプレイ確認用です。");
         ImGui.Separator();
 
@@ -696,7 +804,7 @@ public sealed class MainWindow : Window
 
         if (enemies.Count == 0)
         {
-            ImGui.TextUnformatted("ObjectTable上にエネミー情報が見つかりません。");
+            ImGui.TextUnformatted("周囲にエネミー情報が見つかりません。");
             return;
         }
 
@@ -712,15 +820,15 @@ public sealed class MainWindow : Window
                 | ImGuiTableFlags.ScrollY,
                 new Vector2(0, 0)))
         {
-            ImGui.TableSetupColumn("Enemy");
-            ImGui.TableSetupColumn("EntityId");
-            ImGui.TableSetupColumn("ObjectId");
-            ImGui.TableSetupColumn("StatusId");
-            ImGui.TableSetupColumn("StatusName");
-            ImGui.TableSetupColumn("Param");
-            ImGui.TableSetupColumn("Remaining");
-            ImGui.TableSetupColumn("SourceId");
-            ImGui.TableSetupColumn("Index");
+            ImGui.TableSetupColumn("敵");
+            ImGui.TableSetupColumn("エンティティID");
+            ImGui.TableSetupColumn("オブジェクトID");
+            ImGui.TableSetupColumn("ステータスID");
+            ImGui.TableSetupColumn("ステータス名");
+            ImGui.TableSetupColumn("パラメーター");
+            ImGui.TableSetupColumn("残り秒数");
+            ImGui.TableSetupColumn("付与者ID");
+            ImGui.TableSetupColumn("番号");
             ImGui.TableHeadersRow();
 
             foreach (var enemy in enemies)
@@ -764,13 +872,13 @@ public sealed class MainWindow : Window
 
     private void DrawStatusSearchTab()
     {
-        ImGui.TextUnformatted("全StatusId / StatusName からステータス情報を検索します。");
+        ImGui.TextUnformatted("全ステータスID・名前 からステータス情報を検索します。");
         ImGui.TextDisabled("※ 現在付与されているステータスではなく、LuminaのStatusシート全体から検索します。");
-        ImGui.TextDisabled("※ Paramは付与中ステータスにだけ存在する値のため、全Status検索では '-' 表示です。");
+        ImGui.TextDisabled("※ パラメーターは付与中のステータス固有の値のため、全件検索では「-」と表示します。");
         ImGui.Separator();
 
         ImGui.SetNextItemWidth(300);
-        ImGui.InputText("StatusId / StatusName", ref this.statusSearchText, 128);
+        ImGui.InputText("ステータスID / 名前", ref this.statusSearchText, 128);
 
         ImGui.SameLine();
 
@@ -785,8 +893,8 @@ public sealed class MainWindow : Window
 
         if (string.IsNullOrWhiteSpace(searchText))
         {
-            ImGui.TextUnformatted("StatusId または StatusName を入力してください。");
-            ImGui.TextDisabled("例: 5547 / 混沌の炎 / Vulnerability / Down など");
+            ImGui.TextUnformatted("ステータスIDまたは名前を入力してください。");
+            ImGui.TextDisabled("例：5547 / 混沌の炎 / 被ダメージ上昇 など");
             return;
         }
 
@@ -810,14 +918,14 @@ public sealed class MainWindow : Window
                 | ImGuiTableFlags.ScrollY,
                 new Vector2(0, 0)))
         {
-            ImGui.TableSetupColumn("Icon");
-            ImGui.TableSetupColumn("IconId");
-            ImGui.TableSetupColumn("StatusId");
-            ImGui.TableSetupColumn("StatusName");
-            ImGui.TableSetupColumn("Param");
-            ImGui.TableSetupColumn("Description");
-            ImGui.TableSetupColumn("CanDispel");
-            ImGui.TableSetupColumn("MaxStacks");
+            ImGui.TableSetupColumn("アイコン");
+            ImGui.TableSetupColumn("アイコンID");
+            ImGui.TableSetupColumn("ステータスID");
+            ImGui.TableSetupColumn("ステータス名");
+            ImGui.TableSetupColumn("パラメーター");
+            ImGui.TableSetupColumn("説明");
+            ImGui.TableSetupColumn("解除可能");
+            ImGui.TableSetupColumn("最大スタック");
             ImGui.TableHeadersRow();
 
             foreach (var result in results)
@@ -843,7 +951,7 @@ public sealed class MainWindow : Window
                 ImGui.TextWrapped(result.Description);
 
                 ImGui.TableSetColumnIndex(6);
-                ImGui.TextUnformatted(result.CanDispel ? "true" : "false");
+                ImGui.TextUnformatted(result.CanDispel ? "可能" : "不可");
 
                 ImGui.TableSetColumnIndex(7);
                 ImGui.TextUnformatted(result.MaxStacks.ToString());
@@ -855,12 +963,12 @@ public sealed class MainWindow : Window
 
     private void DrawActionSearchTab()
     {
-        ImGui.TextUnformatted("全ActionId / ActionName からアクション情報を検索します。");
-        ImGui.TextDisabled("※ 現在詠唱中のActionではなく、LuminaのActionシート全体から検索します。");
+        ImGui.TextUnformatted("全アクションID・名前 からアクション情報を検索します。");
+        ImGui.TextDisabled("※ ゲームデータに登録されているすべてのアクションを検索します。");
         ImGui.Separator();
 
         ImGui.SetNextItemWidth(300);
-        ImGui.InputText("ActionId / ActionName", ref this.actionSearchText, 128);
+        ImGui.InputText("アクションID / 名前", ref this.actionSearchText, 128);
 
         ImGui.SameLine();
 
@@ -875,8 +983,8 @@ public sealed class MainWindow : Window
 
         if (string.IsNullOrWhiteSpace(searchText))
         {
-            ImGui.TextUnformatted("ActionId または ActionName を入力してください。");
-            ImGui.TextDisabled("例: 47764 / なぞなぞマジック / Fire / Blizzard など");
+            ImGui.TextUnformatted("アクションIDまたは名前を入力してください。");
+            ImGui.TextDisabled("例：47764 / なぞなぞマジック / ファイア / ブリザド など");
             return;
         }
 
@@ -900,8 +1008,8 @@ public sealed class MainWindow : Window
                 | ImGuiTableFlags.ScrollY,
                 new Vector2(0, 0)))
         {
-            ImGui.TableSetupColumn("ActionId");
-            ImGui.TableSetupColumn("ActionName");
+            ImGui.TableSetupColumn("アクションID");
+            ImGui.TableSetupColumn("アクション名");
             ImGui.TableHeadersRow();
 
             foreach (var result in results)
@@ -1093,7 +1201,7 @@ public sealed class MainWindow : Window
         ImGui.TextUnformatted(job);
 
         ImGui.TableSetColumnIndex(2);
-        ImGui.TextDisabled("No Status");
+        ImGui.TextDisabled("ステータスなし");
 
         ImGui.TableSetColumnIndex(3);
         ImGui.TextDisabled("-");
@@ -1167,7 +1275,7 @@ public sealed class MainWindow : Window
         ImGui.TextUnformatted(objectId.ToString());
 
         ImGui.TableSetColumnIndex(3);
-        ImGui.TextDisabled("No Status");
+        ImGui.TextDisabled("ステータスなし");
 
         ImGui.TableSetColumnIndex(4);
         ImGui.TextDisabled("-");
@@ -1286,4 +1394,6 @@ public sealed class MainWindow : Window
         public string ActionName { get; init; } = string.Empty;
     }
 }
+
+
 

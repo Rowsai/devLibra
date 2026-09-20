@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
@@ -15,6 +15,8 @@ namespace devLibra;
 /// </summary>
 internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
 {
+    private readonly BarrierHpIpc ipc;
+    internal PartyListBarrierHpDisplay(BarrierHpIpc ipc) => this.ipc = ipc;
     private const int GalvanizeShieldPercent = 180;
     private const long RecentRecoveryWindowMilliseconds = 2_000;
 
@@ -68,6 +70,7 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
     /// </summary>
     public void OnPartyListPreFinalize(AddonEvent eventType, AddonArgs args)
     {
+        this.ipc.BeginFrame();
         this.defaultTextColors.Clear();
         this.memberStates.Clear();
         this.debugInfo.Clear();
@@ -78,6 +81,7 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
 
     private void UpdatePartyList()
     {
+        this.ipc.BeginFrame();
         var partyList = Plugin.GameGui.GetAddonByName<AddonPartyList>("_PartyList");
         var partyListData = PartyListNumberArray.Instance();
 
@@ -116,6 +120,8 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
                 continue;
 
             var shieldHp = this.CalculateShieldHp(index, member, memberData);
+            this.ipc.Publish(memberData.EntityId, memberData.CurrentHealth, memberData.MaxHealth,
+                memberData.ShieldsPercentage, shieldHp, this.memberStates[index].CalculationSource);
             var hasShield = Plugin.Configuration.ShowBarrierAdjustedHp && shieldHp > 0;
             var displayHp = hasShield
                 ? SaturatingAdd(memberData.CurrentHealth, shieldHp)
@@ -189,7 +195,7 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
                 state.LastObservedRecoveryHp,
                 GalvanizeShieldPercent);
             state.ExactShieldPercentage = memberData.ShieldsPercentage;
-            state.CalculationSource = "Galvanize (observed recovery x 180%)";
+            state.CalculationSource = "鼓舞（観測回復量 × 180%）";
         }
         else if (memberData.ShieldsPercentage != state.ExactShieldPercentage)
         {
@@ -205,7 +211,7 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
             : CalculateShieldHp(memberData.MaxHealth, memberData.ShieldsPercentage);
 
         if (state.ExactShieldHp <= 0)
-            state.CalculationSource = "Party-list shield percentage";
+            state.CalculationSource = "パーティリストのバリア率";
 
         state.ContentId = memberData.ContentId;
         state.HasObservedData = true;
@@ -350,5 +356,6 @@ internal sealed class BarrierHpMemberState
 
     public int ExactShieldPercentage { get; set; }
 
-    public string CalculationSource { get; set; } = "Party-list shield percentage";
+    public string CalculationSource { get; set; } = "パーティリストのバリア率";
 }
+

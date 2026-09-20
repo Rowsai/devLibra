@@ -14,6 +14,7 @@ internal sealed unsafe class PartyListSorter : IDisposable
 {
     private const string OriginalDisabled = "[devLibra]オリジナルのソート順が有効化されていません。";
     private readonly bool commandRegistered;
+    internal bool CommandRegistered => commandRegistered;
     private int pendingMode;
     private ulong[]? expectedOrder;
     private long verificationDeadline;

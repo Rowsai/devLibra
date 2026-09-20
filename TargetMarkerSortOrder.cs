@@ -11,6 +11,15 @@ internal static class TargetMarkerSortOrder
 {
     internal static int[] DefaultOrder() => [0, 1, 2, 3, 4, 14, 15, 16, 5, 6, 7, 8, 9];
 
+    internal static uint IconId(int marker) => marker switch
+    {
+        >= 0 and <= 4 => (uint)(61201 + marker),
+        >= 14 and <= 16 => (uint)(61206 + marker - 14),
+        >= 5 and <= 7 => (uint)(61211 + marker - 5),
+        8 or 9 => (uint)(61221 + marker - 8),
+        _ => 0,
+    };
+
     internal static int[] Normalize(IEnumerable<int>? order)
     {
         var valid = DefaultOrder();

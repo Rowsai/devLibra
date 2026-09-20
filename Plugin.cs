@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,6 +83,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly EnemyDotNameplateDisplay enemyDotNameplateDisplay;
     private readonly PartyListTargetMarkerDisplay partyListTargetMarkerDisplay;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
+    private readonly BarrierHpIpc barrierHpIpc;
     private readonly PartySearchNamePlateDisplay partySearchNamePlateDisplay;
     private readonly ConcurrentQueue<PartyInviteRequest> partyInviteRequests = [];
     private readonly ConcurrentDictionary<ulong, string> partyInviteResults = [];
@@ -96,7 +97,8 @@ public sealed class Plugin : IDalamudPlugin
 
         this.mainWindow = new MainWindow();
         this.partyListTargetMarkerDisplay = new PartyListTargetMarkerDisplay();
-        this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay();
+        this.barrierHpIpc = new BarrierHpIpc();
+        this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay(this.barrierHpIpc);
         this.partySearchNamePlateDisplay = new PartySearchNamePlateDisplay();
         instance = this;
 
@@ -104,7 +106,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(CommandName, new CommandInfo(this.OnCommand)
         {
-            HelpMessage = "Open devLibra window."
+            HelpMessage = "devLibraの設定画面を開きます。"
         });
 
         PluginInterface.UiBuilder.Draw += this.DrawUi;
@@ -134,6 +136,7 @@ public sealed class Plugin : IDalamudPlugin
         this.partyListSorter.Dispose();
         this.enemyDotNameplateDisplay.Dispose();
         this.partyListBarrierHpDisplay.Dispose();
+        this.barrierHpIpc.Dispose();
         this.partySearchNamePlateDisplay.Dispose();
         instance = null;
 
@@ -151,6 +154,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         this.enemyDotNameplateDisplay.Draw();
         this.DrawPartySearchTargetLines();
+        using var theme = new DarkBlueTheme();
         this.windowSystem.Draw();
     }
 
@@ -192,6 +196,7 @@ public sealed class Plugin : IDalamudPlugin
     }
 
     internal static bool DotCommandRegistered => instance?.enemyDotNameplateDisplay.CommandRegistered ?? false;
+    internal static bool SortCommandRegistered => instance?.partyListSorter.CommandRegistered ?? false;
     internal static string? DotCatalogError => instance?.enemyDotNameplateDisplay.CatalogError;
 
     internal static IReadOnlyList<BarrierHpDebugInfo> GetBarrierHpDebugInfo()
@@ -231,7 +236,7 @@ public sealed class Plugin : IDalamudPlugin
             {
                 Log.Error(ex, "Failed to send a PartySearch party invitation.");
                 this.partyInviteResults[request.GameObjectId] =
-                    $"Could not send an invitation to {request.PlayerName}.";
+                    $"{request.PlayerName}への招待に失敗しました。";
             }
         }
     }
@@ -242,7 +247,7 @@ public sealed class Plugin : IDalamudPlugin
             return;
 
         instance.partyInviteResults[player.GameObjectId] =
-            $"Sending an invitation to {player.Name.TextValue}...";
+            $"{player.Name.TextValue}へ招待を送信しています…";
         instance.partyInviteRequests.Enqueue(new PartyInviteRequest(
             player.GameObjectId,
             player.Name.TextValue));
@@ -260,40 +265,41 @@ public sealed class Plugin : IDalamudPlugin
             .OfType<IPlayerCharacter>()
             .FirstOrDefault(candidate => candidate.GameObjectId == request.GameObjectId);
         if (localPlayer == null || player == null || !CanInviteToParty(player))
-            return $"Could not invite {request.PlayerName}: the player is no longer available.";
+            return $"{request.PlayerName}を招待できません：対象が見つかりません。";
 
         var targetCharacter = (FFXIVClientStructs.FFXIV.Client.Game.Character.Character*)player.Address;
         var localCharacter = (FFXIVClientStructs.FFXIV.Client.Game.Character.Character*)localPlayer.Address;
         var partyInvite = InfoProxyPartyInvite.Instance();
         if (targetCharacter == null || localCharacter == null || partyInvite == null)
-            return $"Could not invite {request.PlayerName}: party invite data is unavailable.";
+            return $"{request.PlayerName}を招待できません：パーティ情報を取得できません。";
 
         // These targets are marked as being in content.  The client has a
         // dedicated in-instance invite route for them; ordinary same/cross-
         // world invite routes do not open an invite for a player in the same
         // content instance.
         if (partyInvite->InviteToPartyInInstanceByContentId(targetCharacter->ContentId))
-            return $"Invitation request sent to {player.Name.TextValue}.";
+            return $"{player.Name.TextValue}へ招待を送信しました。";
 
         // Fall back for a target that has left the shared instance between the
         // list refresh and this framework update.
         if (targetCharacter->CurrentWorld != localCharacter->CurrentWorld)
         {
             return partyInvite->InviteToPartyContentId(targetCharacter->ContentId, targetCharacter->CurrentWorld)
-                ? $"Invitation request sent to {player.Name.TextValue}."
-                : $"Could not send an invitation to {player.Name.TextValue}.";
+                ? $"{player.Name.TextValue}へ招待を送信しました。"
+                : $"{player.Name.TextValue}への招待に失敗しました。";
         }
 
         return partyInvite->InviteToParty(
                 targetCharacter->ContentId,
                 player.Name.TextValue,
                 targetCharacter->HomeWorld)
-            ? $"Invitation request sent to {player.Name.TextValue}."
-            : $"Could not send an invitation to {player.Name.TextValue}.";
+            ? $"{player.Name.TextValue}へ招待を送信しました。"
+            : $"{player.Name.TextValue}への招待に失敗しました。";
     }
 
     private static Plugin? instance;
 
     private sealed record PartyInviteRequest(ulong GameObjectId, string PlayerName);
 }
+
 

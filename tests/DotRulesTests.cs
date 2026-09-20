@@ -10,6 +10,17 @@ internal static class DotRulesTests
             if (!condition) throw new Exception("DoT: " + name);
             assertions++;
         }
+        var timeline = new DotVisualTimeline();
+        Check(timeline.Observe(30, 0) == 0, "New application starts bright");
+        Check(Math.Abs(timeline.Observe(15, 15) - 0.5f) < 0.001, "Half elapsed");
+        Check(timeline.Observe(30, 16) == 0, "Refresh resets gradient");
+        Check(Math.Abs(timeline.Observe(3, 43) - 0.9f) < 0.001, "Near expiry");
+        Check(DotVisualTimeline.Brightness(3.01f, 0.25) == 1f, "No blinking above three seconds");
+        Check(DotVisualTimeline.Brightness(3, 0.5) < 0.11f, "Blink starts at three seconds");
+        Check(DotVisualTimeline.Brightness(2, 1) > 0.99f, "Blink bright phase");
+        Check(Math.Abs(DotVisualTimeline.Brightness(2, 0.25) - 0.55f) < 0.001f, "Smooth intermediate brightness");
+        Check(Math.Abs(DotVisualTimeline.Brightness(2, 0.2499) - DotVisualTimeline.Brightness(2, 0.2501)) < 0.001f, "No strobe discontinuity");
+        Check(DotVisualTimeline.Brightness(0, 0.25) == 1f, "Expired has no blink");
         // Description forms observed in the game's English Status sheet.
         Check(DotDisplayRules.IsSupportedStatus(2586, 2, 212926, "Damage taken from the caster is increased."), "Death's Design exception");
         Check(!DotDisplayRules.IsSupportedStatus(2587, 2, 212926, "Damage taken from the caster is increased."), "Other non-DoT debuffs excluded");

@@ -20,6 +20,9 @@ internal sealed unsafe class EnemyDotNameplateDisplay : IDisposable
     private readonly List<(uint StatusId, uint Icon, float Remaining)> visibleDots = new();
     private readonly bool commandRegistered;
     private long nextErrorLogAt;
+    private readonly Dictionary<(ulong Actor, uint Status), DotVisualTimeline> timelines = new();
+    private readonly List<(ulong Actor, uint Status)> expiredTimelines = new();
+    private uint timelineOwner;
     internal bool CommandRegistered => commandRegistered;
     internal string? CatalogError { get; private set; }
 
@@ -64,9 +67,27 @@ internal sealed unsafe class EnemyDotNameplateDisplay : IDisposable
 
     public void Draw()
     {
-        if (!Plugin.PvpAllowsViewDotIcons || !Plugin.Configuration.ViewDotIconsEnabled || CatalogError != null) return;
+        if (!Plugin.PvpAllowsViewDotIcons || !Plugin.Configuration.ViewDotIconsEnabled || CatalogError != null)
+        {
+            timelines.Clear();
+            return;
+        }
         var local = Plugin.ObjectTable.LocalPlayer;
-        if (local == null) return;
+        if (local == null)
+        {
+            timelines.Clear();
+            return;
+        }
+        if (timelineOwner != local.EntityId)
+        {
+            timelines.Clear();
+            timelineOwner = local.EntityId;
+        }
+        var now = Environment.TickCount64 / 1000.0;
+        expiredTimelines.Clear();
+        foreach (var pair in timelines)
+            if (now > pair.Value.ExpiresAt) expiredTimelines.Add(pair.Key);
+        foreach (var key in expiredTimelines) timelines.Remove(key);
         try { DrawNameplates(local.EntityId); }
         catch (Exception ex)
         {
@@ -103,8 +124,19 @@ internal sealed unsafe class EnemyDotNameplateDisplay : IDisposable
             {
                 if (DotDisplayRules.ShouldDisplay(localId, status.SourceId, status.RemainingTime) &&
                     dotIcons.TryGetValue(status.StatusId, out var icon))
+                {
                     visibleDots.Add((status.StatusId, icon, status.RemainingTime));
+                    var key = (enemy.GameObjectId, status.StatusId);
+                    if (!timelines.TryGetValue(key, out var timeline))
+                        timelines[key] = timeline = new DotVisualTimeline();
+                    timeline.Observe(status.RemainingTime, Environment.TickCount64 / 1000.0);
+                }
             }
+            expiredTimelines.Clear();
+            foreach (var key in timelines.Keys)
+                if (key.Actor == enemy.GameObjectId && !visibleDots.Exists(dot => dot.StatusId == key.Status))
+                    expiredTimelines.Add(key);
+            foreach (var key in expiredTimelines) timelines.Remove(key);
             if (visibleDots.Count == 0) continue;
             // Status-list slot reuse must not shuffle icons when a DoT is refreshed.
             visibleDots.Sort((left, right) => left.StatusId.CompareTo(right.StatusId));
@@ -133,21 +165,49 @@ internal sealed unsafe class EnemyDotNameplateDisplay : IDisposable
                 if (texture == null) continue;
                 var topLeft = origin + new Vector2(index * (size + gap), 0);
                 var bottomRight = topLeft + new Vector2(size, size);
-                draw.AddImage(texture.Handle, topLeft, bottomRight);
+                var now = Environment.TickCount64 / 1000.0;
+                var elapsed = timelines[(enemy.GameObjectId, dot.StatusId)].Observe(dot.Remaining, now);
+                var brightness = DotVisualTimeline.Brightness(dot.Remaining, now);
+                var tint = ImGui.GetColorU32(new Vector4(brightness, brightness, brightness, 1));
+                draw.AddImage(texture.Handle, topLeft, bottomRight, Vector2.Zero, Vector2.One, tint);
+                // A feathered dark cover advances from top to bottom as time runs out.
+                var solidHeight = size * Math.Max(0, elapsed - 0.20f);
+                var coverHeight = size * elapsed;
+                var urgent = dot.Remaining > 0 && dot.Remaining <= 3;
+                // Let the bright phase break through the elapsed-time shading.
+                var coverAlpha = urgent ? 200f - 160f * ((brightness - 0.1f) / 0.9f) : 200f;
+                var coverColor = (uint)Math.Clamp((int)coverAlpha, 0, 255) << 24;
+                if (solidHeight > 0)
+                    draw.AddRectFilled(topLeft, topLeft + new Vector2(size, solidHeight), coverColor);
+                if (coverHeight > 0)
+                    draw.AddRectFilledMultiColor(topLeft + new Vector2(0, solidHeight),
+                        topLeft + new Vector2(size, coverHeight),
+                        coverColor, coverColor, 0x00000000, 0x00000000);
                 var text = DotDisplayRules.TimeText(dot.Remaining);
                 var textSize = ImGui.CalcTextSize(text);
+                var outline = Plugin.Configuration.DotTimerOutlineEnabled
+                    ? Math.Clamp(Plugin.Configuration.DotTimerOutlineThickness, 0.5f, 3f) : 0f;
+                if (!float.IsFinite(outline)) outline = 1f;
+                var textArea = size - 4 - 2 * outline;
                 var requestedScale = Math.Clamp(Plugin.Configuration.DotTimerFontSize, 8, 48)
                     / Math.Max(1f, ImGui.GetFontSize());
-                var textScale = Math.Min(requestedScale, Math.Min((size - 4) / Math.Max(1, textSize.X),
-                    (size - 4) / Math.Max(1, textSize.Y)));
+                var textScale = Math.Min(requestedScale, Math.Min(textArea / Math.Max(1, textSize.X),
+                    textArea / Math.Max(1, textSize.Y)));
                 textSize *= textScale;
                 var fontSize = ImGui.GetFontSize() * textScale;
                 var textPosition = topLeft + (new Vector2(size) - textSize) / 2;
-                draw.AddRectFilled(textPosition - new Vector2(2, 0),
-                    textPosition + textSize + new Vector2(2, 0), 0xB0000000);
-                draw.AddText(ImGui.GetFont(), fontSize, textPosition + Vector2.One, 0xFF000000, text);
+                if (outline > 0)
+                {
+                    var outlineColor = ImGui.GetColorU32(Plugin.Configuration.DotTimerOutlineColor);
+                    for (var direction = 0; direction < 8; direction++)
+                    {
+                        var angle = direction * MathF.PI / 4;
+                        var offset = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * outline;
+                        draw.AddText(ImGui.GetFont(), fontSize, textPosition + offset, outlineColor, text);
+                    }
+                }
                 draw.AddText(ImGui.GetFont(), fontSize, textPosition,
-                    dot.Remaining <= 5 ? 0xFF50C0FF : 0xFFFFFFFF, text);
+                    ImGui.GetColorU32(Plugin.Configuration.DotTimerTextColor), text);
             }
         }
     }
@@ -172,5 +232,7 @@ internal sealed unsafe class EnemyDotNameplateDisplay : IDisposable
         if (commandRegistered) Plugin.CommandManager.RemoveHandler("/dl");
         dotIcons.Clear();
         visibleDots.Clear();
+        timelines.Clear();
+        expiredTimelines.Clear();
     }
 }
