@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
@@ -15,8 +15,6 @@ namespace devLibra;
 /// </summary>
 internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
 {
-    private readonly BarrierHpIpc ipc;
-    internal PartyListBarrierHpDisplay(BarrierHpIpc ipc) => this.ipc = ipc;
     private const int GalvanizeShieldPercent = 180;
     private const long RecentRecoveryWindowMilliseconds = 2_000;
 
@@ -70,7 +68,6 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
     /// </summary>
     public void OnPartyListPreFinalize(AddonEvent eventType, AddonArgs args)
     {
-        this.ipc.BeginFrame();
         this.defaultTextColors.Clear();
         this.memberStates.Clear();
         this.debugInfo.Clear();
@@ -81,7 +78,6 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
 
     private void UpdatePartyList()
     {
-        this.ipc.BeginFrame();
         var partyList = Plugin.GameGui.GetAddonByName<AddonPartyList>("_PartyList");
         var partyListData = PartyListNumberArray.Instance();
 
@@ -120,8 +116,6 @@ internal unsafe sealed class PartyListBarrierHpDisplay : IDisposable
                 continue;
 
             var shieldHp = this.CalculateShieldHp(index, member, memberData);
-            this.ipc.Publish(memberData.EntityId, memberData.CurrentHealth, memberData.MaxHealth,
-                memberData.ShieldsPercentage, shieldHp, this.memberStates[index].CalculationSource);
             var hasShield = Plugin.Configuration.ShowBarrierAdjustedHp && shieldHp > 0;
             var displayHp = hasShield
                 ? SaturatingAdd(memberData.CurrentHealth, shieldHp)

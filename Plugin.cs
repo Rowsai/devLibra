@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +83,6 @@ public sealed class Plugin : IDalamudPlugin
     private readonly EnemyDotNameplateDisplay enemyDotNameplateDisplay;
     private readonly PartyListTargetMarkerDisplay partyListTargetMarkerDisplay;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
-    private readonly BarrierHpIpc barrierHpIpc;
     private readonly PartySearchNamePlateDisplay partySearchNamePlateDisplay;
     private readonly ConcurrentQueue<PartyInviteRequest> partyInviteRequests = [];
     private readonly ConcurrentDictionary<ulong, string> partyInviteResults = [];
@@ -97,8 +96,7 @@ public sealed class Plugin : IDalamudPlugin
 
         this.mainWindow = new MainWindow();
         this.partyListTargetMarkerDisplay = new PartyListTargetMarkerDisplay();
-        this.barrierHpIpc = new BarrierHpIpc();
-        this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay(this.barrierHpIpc);
+        this.partyListBarrierHpDisplay = new PartyListBarrierHpDisplay();
         this.partySearchNamePlateDisplay = new PartySearchNamePlateDisplay();
         instance = this;
 
@@ -136,7 +134,6 @@ public sealed class Plugin : IDalamudPlugin
         this.partyListSorter.Dispose();
         this.enemyDotNameplateDisplay.Dispose();
         this.partyListBarrierHpDisplay.Dispose();
-        this.barrierHpIpc.Dispose();
         this.partySearchNamePlateDisplay.Dispose();
         instance = null;
 

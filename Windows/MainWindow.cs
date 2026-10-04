@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -14,7 +14,7 @@ using LuminaStatus = Lumina.Excel.Sheets.Status;
 
 namespace devLibra.Windows;
 
-public sealed class MainWindow : Window
+public sealed partial class MainWindow : Window
 {
     private string statusSearchText = string.Empty;
     private bool statusSearchExactMatch = false;
@@ -26,68 +26,19 @@ public sealed class MainWindow : Window
     public MainWindow()
         : base(
             $"devLibra  v{typeof(Plugin).Assembly.GetName().Version}###devLibra",
-            ImGuiWindowFlags.None)
+            ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         this.Size = new Vector2(1400, 800);
         this.SizeCondition = ImGuiCond.FirstUseEver;
+        this.SizeConstraints = new WindowSizeConstraints
+        {
+            MinimumSize = new Vector2(1000, 620),
+            MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
+        };
     }
 
-    public override void Draw()
+    private void DrawChangePartyIconsPage()
     {
-        ImGui.TextColored(new Vector4(0.35f, 0.75f, 1f, 1f), "devLibra / コントロールパネル");
-        ImGui.TextDisabled("便利機能の状態確認とカスタマイズ");
-        ImGui.Spacing();
-        if (ImGui.BeginTabBar("devLibraTabs", ImGuiTabBarFlags.FittingPolicyScroll))
-        {
-            if (ImGui.BeginTabItem("General"))
-            {
-                this.DrawGeneralTab();
-                ImGui.EndTabItem();
-            }
-            if (ImGui.BeginTabItem("プレイヤー情報###PartyMember"))
-            {
-                this.DrawPartyMemberTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("敵の詠唱###EnemyCasting"))
-            {
-                this.DrawEnemyCastingTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("敵の状態###EnemyStatus"))
-            {
-                this.DrawEnemyStatusTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("ステータス検索###StatusSearch"))
-            {
-                this.DrawStatusSearchTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("アクション検索###ActionSearch"))
-            {
-                this.DrawActionSearchTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("Barrier HP"))
-            {
-                this.DrawBarrierHpTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("PartySearch"))
-            {
-                this.DrawPartySearchTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("Change Party Icons"))
-            {
                 if (!Plugin.PvpAllowsChangePartyIcons) ImGui.TextDisabled("PvP設定により現在停止中です。");
                 var enabled = Plugin.Configuration.ChangePartyIconsEnabled;
                 if (ImGui.Checkbox("有効##ChangePartyIcons", ref enabled))
@@ -96,11 +47,10 @@ public sealed class MainWindow : Window
                     Plugin.SaveConfiguration();
                 }
                 this.DrawTargetMarkerSortSettings();
-                ImGui.EndTabItem();
-            }
+    }
 
-            if (ImGui.BeginTabItem("View DoT Icons"))
-            {
+    private void DrawDotIconsPage()
+    {
                 if (!Plugin.PvpAllowsViewDotIcons) ImGui.TextDisabled("PvP設定により現在停止中です。");
                 var dotEnabled = Plugin.Configuration.ViewDotIconsEnabled;
                 if (ImGui.Checkbox("有効##ViewDotIcons", ref dotEnabled))
@@ -160,11 +110,10 @@ public sealed class MainWindow : Window
                     : "コマンド: 使用不可（/dl が他のプラグインと競合しています）");
                 ImGui.TextDisabled("自分が付与したDoTとデスデザインを表示します。数字は残り秒数です。");
                 if (Plugin.DotCatalogError is { } error) ImGui.TextWrapped(error);
-                ImGui.EndTabItem();
-            }
+    }
 
-            if (ImGui.BeginTabItem("Which Activate to PVP"))
-            {
+    private void DrawPvpPage()
+    {
                 ImGui.TextWrapped("チェックした機能はPvPコンテンツ参加中も使用を許可します。各機能の通常設定も有効である必要があります。");
                 ImGui.TextWrapped("チェックを外した機能はPvP参加中のみ停止し、退出後は通常設定に戻ります。ウルヴズジェイル係船場は対象外です。");
                 ImGui.TextUnformatted(Plugin.InPvpContent ? "現在: PvP制限を適用中" : "現在: 通常設定を適用中");
@@ -186,11 +135,6 @@ public sealed class MainWindow : Window
                     Plugin.SaveConfiguration();
                     Plugin.RequestPartySearchNamePlateRedraw();
                 }
-                ImGui.EndTabItem();
-            }
-
-            ImGui.EndTabBar();
-        }
     }
 
     private void DrawGeneralTab()
@@ -200,7 +144,7 @@ public sealed class MainWindow : Window
         var inCombat = Plugin.Condition[ConditionFlag.InCombat];
         ImGui.Spacing();
         ImGui.TextUnformatted("便利機能の稼働状況");
-        ImGui.TextDisabled("設定と現在の状態を一覧表示します。各機能の設定は該当タブから変更できます。");
+        ImGui.TextDisabled("設定と現在の状態を一覧表示します。各機能の設定は左メニューから変更できます。");
         ImGui.TextUnformatted(!loggedIn ? "接続状態：ログイン待ち" : Plugin.InPvpContent
             ? "プレイ状態：PvPコンテンツ参加中" : inCombat ? "プレイ状態：戦闘中" : "プレイ状態：通常");
         ImGui.Spacing();
@@ -328,7 +272,6 @@ public sealed class MainWindow : Window
 
     private void DrawBarrierHpTab()
     {
-        ImGui.TextDisabled("Auto Make Timeline: Barrier HP IPC v1");
         if (!Plugin.PvpAllowsBarrierHp) ImGui.TextDisabled("PvP設定により現在停止中です。");
         ImGui.TextUnformatted("パーティリストのHP表示");
         ImGui.Separator();
@@ -1394,6 +1337,8 @@ public sealed class MainWindow : Window
         public string ActionName { get; init; } = string.Empty;
     }
 }
+
+
 
 
 
