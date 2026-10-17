@@ -55,6 +55,12 @@ public sealed class Plugin : IDalamudPlugin
     internal static IGameGui GameGui { get; private set; } = null!;
 
     [PluginService]
+    internal static IGameInteropProvider InteropProvider { get; private set; } = null!;
+
+    [PluginService]
+    internal static IUnlockState UnlockState { get; private set; } = null!;
+
+    [PluginService]
     internal static INamePlateGui NamePlateGui { get; private set; } = null!;
 
     [PluginService]
@@ -81,6 +87,10 @@ public sealed class Plugin : IDalamudPlugin
     private readonly MainWindow mainWindow;
     private readonly PartyListSorter partyListSorter;
     private readonly EnemyDotNameplateDisplay enemyDotNameplateDisplay;
+    private readonly TitlesSearchDisplay titlesSearchDisplay = new();
+    private readonly PvpBattleMacroIcons pvpBattleMacroIcons;
+    internal static string? PvpBattleError => instance?.pvpBattleMacroIcons.Error;
+    internal static string PvpEnemyLabel(int row) => instance?.pvpBattleMacroIcons.EnemyLabel(row) ?? "取得待ち";
     private readonly PartyListTargetMarkerDisplay partyListTargetMarkerDisplay;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
     private readonly PartySearchNamePlateDisplay partySearchNamePlateDisplay;
@@ -90,9 +100,11 @@ public sealed class Plugin : IDalamudPlugin
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        Configuration.PvpEnemyMacros = PvpMacroRules.Normalize(Configuration.PvpEnemyMacros);
         Configuration.OriginalTargetMarkerOrder = TargetMarkerSortOrder.Normalize(Configuration.OriginalTargetMarkerOrder);
         this.partyListSorter = new PartyListSorter();
         this.enemyDotNameplateDisplay = new EnemyDotNameplateDisplay();
+        this.pvpBattleMacroIcons = new PvpBattleMacroIcons();
 
         this.mainWindow = new MainWindow();
         this.partyListTargetMarkerDisplay = new PartyListTargetMarkerDisplay();
@@ -133,6 +145,7 @@ public sealed class Plugin : IDalamudPlugin
         this.partyListTargetMarkerDisplay.Dispose();
         this.partyListSorter.Dispose();
         this.enemyDotNameplateDisplay.Dispose();
+        this.pvpBattleMacroIcons.Dispose();
         this.partyListBarrierHpDisplay.Dispose();
         this.partySearchNamePlateDisplay.Dispose();
         instance = null;
@@ -152,6 +165,7 @@ public sealed class Plugin : IDalamudPlugin
         this.enemyDotNameplateDisplay.Draw();
         this.DrawPartySearchTargetLines();
         using var theme = new DarkBlueTheme();
+        this.titlesSearchDisplay.Draw();
         this.windowSystem.Draw();
     }
 
@@ -223,6 +237,7 @@ public sealed class Plugin : IDalamudPlugin
     private void OnFrameworkUpdate(IFramework framework)
     {
         this.partyListSorter.Update();
+        this.pvpBattleMacroIcons.Update();
         while (this.partyInviteRequests.TryDequeue(out var request))
         {
             try

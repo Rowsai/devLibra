@@ -167,6 +167,11 @@ public sealed partial class MainWindow : Window
             Row("オリジナルのソート順", config.OriginalTargetMarkerSortEnabled,
                 Plugin.PvpAllowsChangePartyIcons, Plugin.SortCommandRegistered ? null : "コマンド競合",
                 "/sort tm original で保存した順序を適用");
+            Row("Titles Search", config.TitlesSearchEnabled, true, null,
+                "称号一覧の上部で取得済みの称号を部分一致検索");
+            Row("For PvP Battle", config.ForPvpBattleEnabled, true,
+                Plugin.PvpBattleError ?? (PvpBattleMacroIcons.InCrystallineConflict ? null : "クリコン参加待ち"),
+                "敵リスト1～5番に設定したマクロアイコンを自動更新");
             ImGui.EndTable();
         }
         ImGui.Spacing();

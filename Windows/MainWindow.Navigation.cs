@@ -22,6 +22,8 @@ public sealed partial class MainWindow
         ("敵の状態", "敵に付与されているステータスを確認します。", FontAwesomeIcon.List),
         ("ステータス検索", "ステータスを名前・IDから検索します。", FontAwesomeIcon.Search),
         ("アクション検索", "アクションを名前・IDから検索します。", FontAwesomeIcon.Bolt),
+        ("Titles Search", "ゲームの称号一覧で、取得済みの称号を部分一致検索します。", FontAwesomeIcon.Search),
+        ("For PvP Battle", "クリスタルコンフリクトの敵リストとマクロアイコンを連動させます。", FontAwesomeIcon.Bullseye),
     ];
 
     public override void Draw()
@@ -38,10 +40,12 @@ public sealed partial class MainWindow
             NavigationItem(0, unit);
             SectionLabel("便利機能");
             for (var i = 1; i <= 4; i++) NavigationItem(i, unit);
+            NavigationItem(11, unit);
+            NavigationItem(12, unit);
             SectionLabel("動作設定");
             NavigationItem(5, unit);
             SectionLabel("開発ツール");
-            for (var i = 6; i < Pages.Length; i++) NavigationItem(i, unit);
+            for (var i = 6; i <= 10; i++) NavigationItem(i, unit);
         }
         ImGui.EndChild();
         ImGui.PopStyleColor();
@@ -71,6 +75,8 @@ public sealed partial class MainWindow
                 case 8: DrawEnemyStatusTab(); break;
                 case 9: DrawStatusSearchTab(); break;
                 case 10: DrawActionSearchTab(); break;
+                case 11: DrawTitlesSearchPage(); break;
+                case 12: DrawPvpBattlePage(); break;
             }
             ImGui.PopItemWidth();
         }
@@ -120,12 +126,13 @@ public sealed partial class MainWindow
     {
         var c = Plugin.Configuration;
         var enabled = (c.ShowBarrierAdjustedHp ? 1 : 0) + (c.PartySearchEnabled ? 1 : 0)
-            + (c.ChangePartyIconsEnabled ? 1 : 0) + (c.ViewDotIconsEnabled ? 1 : 0);
+            + (c.ChangePartyIconsEnabled ? 1 : 0) + (c.ViewDotIconsEnabled ? 1 : 0) + (c.TitlesSearchEnabled ? 1 : 0)
+            + (c.ForPvpBattleEnabled ? 1 : 0);
         var allowed = (c.PvpAllowBarrierHp ? 1 : 0) + (c.PvpAllowPartySearch ? 1 : 0)
             + (c.PvpAllowChangePartyIcons ? 1 : 0) + (c.PvpAllowViewDotIcons ? 1 : 0);
         if (ImGui.BeginTable("HomeSummary", 3, ImGuiTableFlags.SizingStretchSame))
         {
-            Summary("有効な便利機能", $"{enabled} / 4", "各機能の通常設定");
+            Summary("有効な便利機能", $"{enabled} / 6", "各機能の通常設定");
             Summary("PvP中の使用許可", $"{allowed} / 4", "通常設定が有効な機能に適用");
             Summary("現在の環境", Plugin.ObjectTable.LocalPlayer == null ? "未ログイン" :
                 Plugin.InPvpContent ? "PvP" : Plugin.Condition[ConditionFlag.InCombat] ? "戦闘中" : "通常", "状態は自動更新されます");
@@ -143,6 +150,65 @@ public sealed partial class MainWindow
         if (ImGui.Button("DoT表示の設定へ")) selectedPage = 4;
         ImGui.SameLine();
         if (ImGui.Button("PvPの動作設定へ")) selectedPage = 5;
+    }
+
+    private static void DrawTitlesSearchPage()
+    {
+        var enabled = Plugin.Configuration.TitlesSearchEnabled;
+        ImGui.TextUnformatted($"現在の設定：{(enabled ? "有効" : "無効")}");
+        if (ImGui.Button(enabled ? "Titles Search を無効にする" : "Titles Search を有効にする"))
+        {
+            Plugin.Configuration.TitlesSearchEnabled = !enabled;
+            Plugin.SaveConfiguration();
+        }
+        ImGui.Spacing();
+        ImGui.TextWrapped("有効にしてゲームの称号一覧を開くと、上部に検索バーが表示されます。文字を入力すると、取得済みの称号から部分一致で検索します。");
+        ImGui.TextWrapped("検索結果をクリックすると確認画面を表示します。OKで称号を変更し、Cancelで変更せず検索結果へ戻ります。「クリア」で元の一覧へ戻ります。英字の大文字・小文字、全角・半角、ひらがな・カタカナを区別しません。");
+    }
+
+    private static void DrawPvpBattlePage()
+    {
+        var enabled = Plugin.Configuration.ForPvpBattleEnabled;
+        ImGui.TextUnformatted($"現在の設定：{(enabled ? "有効" : "無効")}");
+        if (ImGui.Button(enabled ? "For PvP Battle を無効にする" : "For PvP Battle を有効にする"))
+        {
+            Plugin.Configuration.ForPvpBattleEnabled = !enabled;
+            Plugin.SaveConfiguration();
+        }
+        ImGui.Spacing();
+        ImGui.TextWrapped(Plugin.PvpBattleError ?? (!enabled ? "機能は無効です。" :
+            PvpBattleMacroIcons.InCrystallineConflict ? "クリスタルコンフリクト内で自動更新中です。" : "クリスタルコンフリクト参加待ちです。"));
+        ImGui.TextWrapped("敵リスト1～5番ごとに、ジョブアイコンへ変更するマクロを指定してください。マクロの実行やマーカー付与は不要です。設定は自動保存します。");
+        ImGui.TextWrapped("通常・クロスホットバーに置かれた指定マクロを自動更新します。同じマクロを複数のスロットに置いた場合はすべて反映します。マクロ本文と実行内容は変更しません。");
+        ImGui.Spacing();
+        for (var row = 0; row < 5; row++)
+        {
+            ImGui.PushID(row);
+            ImGui.Separator();
+            ImGui.TextUnformatted($"敵リスト {row + 1}（<e{row + 1}>）");
+            ImGui.TextDisabled(Plugin.PvpEnemyLabel(row));
+            var selected = Plugin.Configuration.PvpEnemyMacros[row];
+            ImGui.SetNextItemWidth(Math.Max(200, ImGui.GetContentRegionAvail().X - 16));
+            if (ImGui.BeginCombo("##Macro", PvpBattleMacroIcons.MacroLabel(selected)))
+            {
+                if (ImGui.Selectable("未設定", selected == -1)) Assign(-1);
+                for (var set = 0; set < 2; set++)
+                    for (var index = 0; index < 100; index++)
+                    {
+                        var id = (set << 8) | index;
+                        if (ImGui.Selectable($"{PvpBattleMacroIcons.MacroLabel(id)}##{id}", selected == id)) Assign(id);
+                    }
+                ImGui.EndCombo();
+            }
+            ImGui.PopID();
+            void Assign(int id)
+            {
+                Plugin.Configuration.PvpEnemyMacros = PvpMacroRules.Assign(Plugin.Configuration.PvpEnemyMacros, row, id);
+                Plugin.SaveConfiguration();
+            }
+        }
+        ImGui.Spacing();
+        ImGui.TextWrapped("同じマクロを別の敵番号に選ぶと、以前の割り当てを解除します。対象を取得できない場合、機能無効時、退出時は元のアイコンを表示します。");
     }
 
     private static void Summary(string title, string value, string description)

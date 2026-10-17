@@ -15,6 +15,9 @@ public sealed class Configuration : IPluginConfiguration
     public bool ChangePartyIconsEnabled { get; set; } = true;
 
     public bool ViewDotIconsEnabled { get; set; }
+    public bool TitlesSearchEnabled { get; set; }
+    public bool ForPvpBattleEnabled { get; set; }
+    public int[] PvpEnemyMacros { get; set; } = [-1, -1, -1, -1, -1];
 
     public int DotIconSize { get; set; } = 32;
 

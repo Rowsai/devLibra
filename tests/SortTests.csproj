@@ -9,5 +9,7 @@
     <Compile Include="..\TargetMarkerSortOrder.cs" Link="TargetMarkerSortOrder.cs" />
     <Compile Include="..\DotDisplayRules.cs" Link="DotDisplayRules.cs" />
     <Compile Include="..\DotVisualTimeline.cs" Link="DotVisualTimeline.cs" />
+    <Compile Include="..\TitleSearchRules.cs" Link="TitleSearchRules.cs" />
+    <Compile Include="..\PvpMacroRules.cs" Link="PvpMacroRules.cs" />
   </ItemGroup>
 </Project>

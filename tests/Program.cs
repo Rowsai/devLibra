@@ -91,3 +91,18 @@ foreach (var invalid in new[] { new[] { 1, 0 }, new[] { 0, 1, 1 }, new[] { 0, 3 
 }
 Console.WriteLine($"PASS: {assertions} assertions; 5040 complete permutations; 1000 mixed-marker scenarios.");
 DotRulesTests.Run();
+foreach (var (title, query, expected) in new[]
+{
+    ("The Azure Dragoon", "azure", true),
+    ("The Azure Dragoon", "  DRAGOON  ", true),
+    ("The Azure Dragoon", "mage", false),
+    ("蒼天の竜騎士", "竜騎", true),
+    ("蒼天の竜騎士", "騎竜", false),
+    ("ＡＢＣ", "abc", true),
+    ("ナイト", "ないと", true),
+    ("ナイト", "ﾅｲﾄ", true),
+    ("蒼天の竜騎士", "", true),
+    ("", "竜騎士", false),
+}) Check(TitleSearchRules.Matches(title, query) == expected, $"Title search: {title} / {query}");
+Console.WriteLine("PASS: 10 title search assertions.");
+PvpMacroRulesTests.Run();
