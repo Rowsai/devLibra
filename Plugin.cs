@@ -88,6 +88,8 @@ public sealed class Plugin : IDalamudPlugin
     private readonly PartyListSorter partyListSorter;
     private readonly EnemyDotNameplateDisplay enemyDotNameplateDisplay;
     private readonly TitlesSearchDisplay titlesSearchDisplay = new();
+    private readonly FieldMarkerDetail fieldMarkerDetail = new();
+    internal static FieldMarkerDetail? FieldMarkers => instance?.fieldMarkerDetail;
     private readonly PvpBattleMacroIcons pvpBattleMacroIcons;
     internal static string? PvpBattleError => instance?.pvpBattleMacroIcons.Error;
     internal static string PvpEnemyLabel(int row) => instance?.pvpBattleMacroIcons.EnemyLabel(row) ?? "取得待ち";
@@ -100,6 +102,7 @@ public sealed class Plugin : IDalamudPlugin
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        Configuration.FieldMarkerSets ??= [];
         Configuration.PvpEnemyMacros = PvpMacroRules.Normalize(Configuration.PvpEnemyMacros);
         Configuration.OriginalTargetMarkerOrder = TargetMarkerSortOrder.Normalize(Configuration.OriginalTargetMarkerOrder);
         this.partyListSorter = new PartyListSorter();
@@ -238,6 +241,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         this.partyListSorter.Update();
         this.pvpBattleMacroIcons.Update();
+        this.fieldMarkerDetail.Update();
         while (this.partyInviteRequests.TryDequeue(out var request))
         {
             try

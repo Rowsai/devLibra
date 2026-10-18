@@ -6,6 +6,7 @@ namespace devLibra;
 public sealed class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 5;
+    public System.Collections.Generic.List<SavedFieldMarkerSet> FieldMarkerSets { get; set; } = [];
 
     public bool PvpAllowBarrierHp { get; set; }
     public bool PvpAllowPartySearch { get; set; }
