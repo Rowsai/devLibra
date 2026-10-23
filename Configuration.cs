@@ -17,8 +17,27 @@ public sealed class Configuration : IPluginConfiguration
 
     public bool ViewDotIconsEnabled { get; set; }
     public bool TitlesSearchEnabled { get; set; }
+    public bool CheckReviveTargetEnabled { get; set; }
     public bool ForPvpBattleEnabled { get; set; }
+    public bool PvpTargetWarningEnabled { get; set; }
+    public int PvpWarningTargetThreshold { get; set; } = 3;
+    public bool PvpWarningSoundEnabled { get; set; }
+    public int PvpWarningSoundId { get; set; } = 1;
+    public float PvpWarningSoundVolume { get; set; } = 100;
+    public string PvpWarningText { get; set; } = "Multiple enemy targets detected!";
+    public int PvpWarningFont { get; set; }
+    public float PvpWarningFontSize { get; set; } = 28;
+    public Vector4 PvpWarningTextColor { get; set; } = new(1, 0.35f, 0.3f, 1);
+    public bool PvpWarningRainbowEnabled { get; set; }
+    public bool PvpWarningOutlineEnabled { get; set; } = true;
+    public Vector4 PvpWarningOutlineColor { get; set; } = new(0, 0, 0, 1);
+    public float PvpWarningOutlineThickness { get; set; } = 1;
+    public float PvpWarningX { get; set; } = 400;
+    public float PvpWarningY { get; set; } = 200;
+    public int[]? PvpEnemyMacroSlots { get; set; }
+    public int[]? PvpAllyMacroSlots { get; set; }
     public int[] PvpEnemyMacros { get; set; } = [-1, -1, -1, -1, -1];
+    public int[] PvpAllyMacros { get; set; } = [-1, -1, -1, -1, -1];
 
     public int DotIconSize { get; set; } = 32;
 
@@ -59,4 +78,10 @@ public sealed class Configuration : IPluginConfiguration
     /// <summary>Screen-space thickness of eligible-player target lines.</summary>
     public float PartySearchTargetLineThickness { get; set; } = 2f;
 }
+
+
+
+
+
+
 

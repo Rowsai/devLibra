@@ -87,12 +87,17 @@ public sealed class Plugin : IDalamudPlugin
     private readonly MainWindow mainWindow;
     private readonly PartyListSorter partyListSorter;
     private readonly EnemyDotNameplateDisplay enemyDotNameplateDisplay;
+    private readonly ReviveTargetDisplay reviveTargetDisplay;
+    internal static string? ReviveTargetError => instance?.reviveTargetDisplay.Error;
     private readonly TitlesSearchDisplay titlesSearchDisplay = new();
     private readonly FieldMarkerDetail fieldMarkerDetail = new();
     internal static FieldMarkerDetail? FieldMarkers => instance?.fieldMarkerDetail;
     private readonly PvpBattleMacroIcons pvpBattleMacroIcons;
+    private readonly PvpTargetWarning pvpTargetWarning;
+    internal static PvpTargetWarning? TargetWarning => instance?.pvpTargetWarning;
     internal static string? PvpBattleError => instance?.pvpBattleMacroIcons.Error;
     internal static string PvpEnemyLabel(int row) => instance?.pvpBattleMacroIcons.EnemyLabel(row) ?? "取得待ち";
+    internal static string PvpAllyLabel(int row) => instance?.pvpBattleMacroIcons.AllyLabel(row) ?? "取得待ち";
     private readonly PartyListTargetMarkerDisplay partyListTargetMarkerDisplay;
     private readonly PartyListBarrierHpDisplay partyListBarrierHpDisplay;
     private readonly PartySearchNamePlateDisplay partySearchNamePlateDisplay;
@@ -103,11 +108,15 @@ public sealed class Plugin : IDalamudPlugin
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         Configuration.FieldMarkerSets ??= [];
-        Configuration.PvpEnemyMacros = PvpMacroRules.Normalize(Configuration.PvpEnemyMacros);
+        if (Configuration.PvpWarningText == "3人以上にターゲットされています！")
+            Configuration.PvpWarningText = "Multiple enemy targets detected!";
+        (Configuration.PvpEnemyMacroSlots, Configuration.PvpAllyMacroSlots) = PvpMacroRules.NormalizeSlots(Configuration.PvpEnemyMacroSlots, Configuration.PvpAllyMacroSlots, Configuration.PvpEnemyMacros, Configuration.PvpAllyMacros);
         Configuration.OriginalTargetMarkerOrder = TargetMarkerSortOrder.Normalize(Configuration.OriginalTargetMarkerOrder);
         this.partyListSorter = new PartyListSorter();
         this.enemyDotNameplateDisplay = new EnemyDotNameplateDisplay();
+        this.reviveTargetDisplay = new ReviveTargetDisplay();
         this.pvpBattleMacroIcons = new PvpBattleMacroIcons();
+        this.pvpTargetWarning = new PvpTargetWarning();
 
         this.mainWindow = new MainWindow();
         this.partyListTargetMarkerDisplay = new PartyListTargetMarkerDisplay();
@@ -149,6 +158,7 @@ public sealed class Plugin : IDalamudPlugin
         this.partyListSorter.Dispose();
         this.enemyDotNameplateDisplay.Dispose();
         this.pvpBattleMacroIcons.Dispose();
+        this.pvpTargetWarning.Dispose();
         this.partyListBarrierHpDisplay.Dispose();
         this.partySearchNamePlateDisplay.Dispose();
         instance = null;
@@ -166,6 +176,8 @@ public sealed class Plugin : IDalamudPlugin
     private void DrawUi()
     {
         this.enemyDotNameplateDisplay.Draw();
+        this.reviveTargetDisplay.Draw();
+        this.pvpTargetWarning.Draw();
         this.DrawPartySearchTargetLines();
         using var theme = new DarkBlueTheme();
         this.titlesSearchDisplay.Draw();
@@ -241,6 +253,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         this.partyListSorter.Update();
         this.pvpBattleMacroIcons.Update();
+        this.pvpTargetWarning.Update();
         this.fieldMarkerDetail.Update();
         while (this.partyInviteRequests.TryDequeue(out var request))
         {
@@ -317,5 +330,8 @@ public sealed class Plugin : IDalamudPlugin
 
     private sealed record PartyInviteRequest(ulong GameObjectId, string PlayerName);
 }
+
+
+
 
 

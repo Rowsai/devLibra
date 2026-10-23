@@ -8,13 +8,13 @@ using static FFXIVClientStructs.FFXIV.Client.UI.Misc.RaptureHotbarModule;
 
 namespace devLibra;
 
-/// <summary>Projects the native enemy-party order onto configured macro render intermediates.</summary>
+/// <summary>Projects enemy and friendly party order onto configured macro render intermediates.</summary>
 internal sealed unsafe class PvpBattleMacroIcons : IDisposable
 {
     private delegate void PrepareSlotDelegate(RaptureHotbarModule* module, HotbarSlot* slot, HotbarUIIntermediate* output);
     private Hook<PrepareSlotDelegate>? renderHook;
-    private readonly uint[] jobIcons = new uint[5];
-    private readonly string[] enemyLabels = new string[5];
+    private readonly uint[] jobIcons = new uint[10];
+    private readonly string[] enemyLabels = new string[10];
     private long nextUpdate;
     private long nextLog;
     private ulong owner;
@@ -33,6 +33,7 @@ internal sealed unsafe class PvpBattleMacroIcons : IDisposable
     }
     private bool Enabled => Error == null && Plugin.Configuration.ForPvpBattleEnabled && InCrystallineConflict;
     internal string EnemyLabel(int row) => Enabled && row >= 0 && row < 5 ? enemyLabels[row] ?? "取得待ち" : "取得待ち";
+    internal string AllyLabel(int row) => Enabled && row >= 0 && row < 5 ? enemyLabels[row + 5] ?? "取得待ち" : "取得待ち";
 
     internal PvpBattleMacroIcons()
     {
@@ -68,9 +69,10 @@ internal sealed unsafe class PvpBattleMacroIcons : IDisposable
             Array.Clear(jobIcons); Array.Clear(enemyLabels);
             var pronouns = PronounModule.Instance();
             if (pronouns == null) return;
-            for (var row = 0; row < 5; row++)
+            for (var row = 0; row < 10; row++)
             {
-                var target = pronouns->ResolvePlaceholder($"<e{row + 1}>", 0, 0);
+                var placeholder = row < 5 ? $"<e{row + 1}>" : $"<{row - 4}>";
+                var target = pronouns->ResolvePlaceholder(placeholder, 0, 0);
                 if (target == null) continue;
                 foreach (var obj in Plugin.ObjectTable)
                     if (obj.Address == (nint)target && obj is IPlayerCharacter player && player.ClassJob.RowId > 0)
@@ -95,13 +97,16 @@ internal sealed unsafe class PvpBattleMacroIcons : IDisposable
         {
             if (!Enabled || owner != Plugin.ObjectTable.LocalPlayer?.GameObjectId || territory != Plugin.ClientState.TerritoryType ||
                 slot == null || output == null || slot->CommandType != HotbarSlotType.Macro) return;
-            var mappings = Plugin.Configuration.PvpEnemyMacros;
-            for (var row = 0; row < Math.Min(mappings.Length, 5); row++)
-                if (mappings[row] == slot->CommandId)
+            for (var team = 0; team < 2; team++)
+            {
+            var mappings = team == 0 ? Plugin.Configuration.PvpEnemyMacroSlots : Plugin.Configuration.PvpAllyMacroSlots;
+            for (var row = 0; row < Math.Min(mappings?.Length ?? 0, 15); row++)
+                if (mappings![row] == slot->CommandId)
                 {
-                    if (jobIcons[row] != 0) output->IconId = jobIcons[row];
+                    if (jobIcons[team * 5 + row / 3] != 0) output->IconId = jobIcons[team * 5 + row / 3];
                     return;
                 }
+            }
         }
         catch (Exception ex) { Report(ex); }
     }
@@ -128,3 +133,4 @@ internal sealed unsafe class PvpBattleMacroIcons : IDisposable
         Array.Clear(jobIcons); Array.Clear(enemyLabels);
     }
 }
+
