@@ -26,6 +26,8 @@ internal sealed unsafe class PvpTargetWarning : IDisposable
     private string? fontError;
     internal string? FontError => fontError ?? (meiryo?.LoadException != null || miedinger?.LoadException != null ? "フォントの読み込みに失敗しました。標準フォントで表示します。" : null);
     internal int TargetCount { get; private set; }
+    internal int EnemyCount { get; private set; }
+    internal string DetectionState { get; private set; } = "待機中";
     internal void Preview() => previewUntil = Environment.TickCount64 + 10000;
 
     internal PvpTargetWarning()
@@ -57,27 +59,37 @@ internal sealed unsafe class PvpTargetWarning : IDisposable
             if (Plugin.Configuration.PvpWarningSoundEnabled) PlayWarningSound();
         }
         var c = Plugin.Configuration;
+        EnemyCount = 0;
+        DetectionState = "無効・未ログイン";
         var self = Plugin.ObjectTable.LocalPlayer;
-        if (!c.ForPvpBattleEnabled || !c.PvpTargetWarningEnabled || self == null || self.CurrentHp == 0 ||
-            !PvpBattleMacroIcons.InCrystallineConflict || !Plugin.Condition[ConditionFlag.InCombat]) return;
+        if (!c.ForPvpBattleEnabled || !c.PvpTargetWarningEnabled || self == null) return;
+        if (self.CurrentHp == 0) { DetectionState = "戦闘不能"; return; }
+        if (!PvpBattleMacroIcons.InCrystallineConflict) { DetectionState = "クリスタルコンフリクト参加待ち"; return; }
+        var enemyIds = new HashSet<uint>();
         var pronouns = PronounModule.Instance();
-        if (pronouns == null) return;
-        var seen = new HashSet<ulong>();
-        for (var i = 1; i <= 5; i++)
+        if (pronouns != null)
+            for (var i = 1; i <= 5; i++)
+            {
+                var target = pronouns->ResolvePlaceholder($"<e{i}>", 0, 0);
+                if (target != null) enemyIds.Add(target->EntityId);
+            }
+        var seen = new HashSet<uint>();
+        var inCombat = Plugin.Condition[ConditionFlag.InCombat];
+        foreach (var obj in Plugin.ObjectTable)
         {
-            var target = pronouns->ResolvePlaceholder($"<e{i}>", 0, 0);
-            if (target == null) continue;
-            foreach (var obj in Plugin.ObjectTable)
-                if (obj.Address == (nint)target && obj is IPlayerCharacter enemy && enemy.CurrentHp > 0 &&
-                    enemy.TargetObjectId == self.GameObjectId && seen.Add(enemy.GameObjectId))
-                {
-                    TargetCount++;
-                    targetingJobs.Add(enemy.ClassJob.RowId);
-                    break;
-                }
+            if (obj is not IPlayerCharacter enemy || enemy.GameObjectId == self.GameObjectId || enemy.CurrentHp == 0) continue;
+            var native = (FFXIVClientStructs.FFXIV.Client.Game.Character.Character*)enemy.Address;
+            if (native == null || (!enemyIds.Contains(enemy.EntityId) && !native->IsHostile) || !seen.Add(enemy.EntityId)) continue;
+            EnemyCount++;
+            // Player entity IDs are the server identifiers; do not depend on a
+            // wrapper's 64-bit object ID representation for the target match.
+            if (native->GetTargetId().ObjectId != self.EntityId) continue;
+            TargetCount++;
+            targetingJobs.Add(enemy.ClassJob.RowId);
+            inCombat |= native->InCombat;
         }
-        wasDetected = TargetCount >= Math.Clamp(c.PvpWarningTargetThreshold, 2, 5);
-        if (!previouslyDetected && wasDetected && c.PvpWarningSoundEnabled) PlayWarningSound();
+        DetectionState = inCombat ? "検知中" : "自分・対象の敵が未交戦";
+        wasDetected = inCombat && TargetCount >= Math.Clamp(c.PvpWarningTargetThreshold, 2, 5);        if (!previouslyDetected && wasDetected && c.PvpWarningSoundEnabled) PlayWarningSound();
     }
 
     private static void PlayWarningSound()
@@ -86,7 +98,7 @@ internal sealed unsafe class PvpTargetWarning : IDisposable
         {
             var c = Plugin.Configuration;
             if (!c.PvpWarningSoundEnabled) return;
-            var volume = float.IsFinite(c.PvpWarningSoundVolume) ? Math.Clamp(c.PvpWarningSoundVolume, 0, 100) / 100 : 1;
+            var volume = float.IsFinite(c.PvpWarningSoundVolume) ? Math.Clamp(c.PvpWarningSoundVolume, 0, 500) / 100 : 1;
             if (volume <= 0) return;
             FFXIVClientStructs.FFXIV.Client.Sound.SoundData* pad = null;
             FFXIVClientStructs.FFXIV.Client.Sound.SoundData* sound = null;
@@ -103,7 +115,7 @@ internal sealed unsafe class PvpTargetWarning : IDisposable
     {
         var c = Plugin.Configuration;
         if (!EditPosition && Environment.TickCount64 >= previewUntil &&
-            !(c.ForPvpBattleEnabled && c.PvpTargetWarningEnabled && TargetCount >= Math.Clamp(c.PvpWarningTargetThreshold, 2, 5) && PvpBattleMacroIcons.InCrystallineConflict && Plugin.Condition[ConditionFlag.InCombat])) return;
+            !(c.ForPvpBattleEnabled && c.PvpTargetWarningEnabled && wasDetected && PvpBattleMacroIcons.InCrystallineConflict)) return;
         using var font = (c.PvpWarningFont == 1 ? miedinger : meiryo)?.Push();
         var viewport = ImGui.GetMainViewport();
         var position = new Vector2(c.PvpWarningX, c.PvpWarningY);
@@ -180,6 +192,7 @@ internal sealed unsafe class PvpTargetWarning : IDisposable
     }
     public void Dispose() { meiryo?.Dispose(); miedinger?.Dispose(); }
 }
+
 
 
 

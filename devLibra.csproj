@@ -1,6 +1,6 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>1.0.0.7</Version>
+    <Version>1.0.1.0</Version>
     <Authors>Rowsai</Authors>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -9,12 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ArenaCenters.json" LogicalName="devLibra.ArenaCenters.json" />
+    <Content Include="ARENA-DATA-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <Compile Remove="tests\**\*.cs" />
     <Content Include="devLibra.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 </Project>
+
+
+
+
 
 
 

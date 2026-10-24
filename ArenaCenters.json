@@ -1,0 +1,730 @@
+[
+  {
+    "ContentId": 833,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極ヴァリガルマンダ討滅戦",
+    "Label": "Ex1Valigarmanda",
+    "Source": "BossMod.Modules/Dawntrail/Extreme/Ex1Valigarmanda/Ex1Valigarmanda.cs"
+  },
+  {
+    "ContentId": 996,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極ゾラージャ討滅戦",
+    "Label": "Ex2ZoraalJa",
+    "Source": "BossMod.Modules/Dawntrail/Extreme/Ex2ZoraalJa/Ex2ZoraalJa.cs"
+  },
+  {
+    "ContentId": 1017,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極エターナルクイーン討滅戦",
+    "Label": "Ex3Sphene",
+    "Source": "BossMod.Modules/Dawntrail/Extreme/Ex3Sphene/Ex3Sphene.cs"
+  },
+  {
+    "ContentId": 1031,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極ゼレニア討滅戦",
+    "Label": "Ex4Zelenia",
+    "Source": "BossMod.Modules/Dawntrail/Extreme/Ex4Zelenia/Ex4Zelenia.cs"
+  },
+  {
+    "ContentId": 1062,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極永遠の闇討滅戦",
+    "Label": "Ex5Necron",
+    "Source": "BossMod.Modules/Dawntrail/Extreme/Ex5Necron/Ex5Necron.cs"
+  },
+  {
+    "ContentId": 1044,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極護竜アルシュベルド狩猟戦",
+    "Label": "Ex6GuardianArkveld",
+    "Source": "BossMod.Modules/Dawntrail/Extreme/Ex6GuardianArkveld/Ex6GuardianArkveld.cs"
+  },
+  {
+    "ContentId": 1077,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極グラシャラボラス討滅戦",
+    "Label": "Ex7Doomtrain",
+    "Source": "BossMod.Modules/Dawntrail/Extreme/Ex7Doomtrain/Ex7Doomtrain.cs"
+  },
+  {
+    "ContentId": 1116,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極エヌオー討滅戦",
+    "Label": "Ex8Enuo",
+    "Source": "BossMod.Modules/Dawntrail/Extreme/Ex8Enuo/Ex8Enuo.cs"
+  },
+  {
+    "ContentId": 986,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：ライトヘビー級1",
+    "Label": "RM01SBlackCat",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM01SBlackCat/RM01SBlackCat.cs"
+  },
+  {
+    "ContentId": 988,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：ライトヘビー級2",
+    "Label": "RM02SHoneyBLovely",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM02SHoneyBLovely/RM02SHoneyBLovely.cs"
+  },
+  {
+    "ContentId": 990,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：ライトヘビー級3",
+    "Label": "RM03SBruteBomber",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM03SBruteBomber/RM03SBruteBomber.cs"
+  },
+  {
+    "ContentId": 992,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：ライトヘビー級4",
+    "Label": "P1Center",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM04SWickedThunder/RM04SWickedThunder.cs"
+  },
+  {
+    "ContentId": 992,
+    "X": 100.0,
+    "Z": 165.0,
+    "Name": "至天の座アルカディア零式：ライトヘビー級4",
+    "Label": "P2Center",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM04SWickedThunder/RM04SWickedThunder.cs"
+  },
+  {
+    "ContentId": 1020,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：クルーザー級1",
+    "Label": "RM05SDancingGreen",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM05SDancingGreen/RM05SDancingGreen.cs"
+  },
+  {
+    "ContentId": 1022,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：クルーザー級2",
+    "Label": "ArenaCenter",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM06SSugarRiot/RM06SSugarRiot.cs"
+  },
+  {
+    "ContentId": 1024,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：クルーザー級3",
+    "Label": "RM07SBruteAbominator",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM07SBruteAbominator/RM07SBruteAbominator.cs"
+  },
+  {
+    "ContentId": 1026,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：クルーザー級4",
+    "Label": "RM08SHowlingBlade",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM08SHowlingBlade/RM08SHowlingBlade.cs"
+  },
+  {
+    "ContentId": 1069,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：ヘビー級1",
+    "Label": "RM09SVampFatale",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM09SVampFatale/RM09SVampFatale.cs"
+  },
+  {
+    "ContentId": 1071,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：ヘビー級2",
+    "Label": "RM10STheXtremes",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM10STheXtremes/RM10STheXtremes.cs"
+  },
+  {
+    "ContentId": 1073,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：ヘビー級3",
+    "Label": "RM11STheTyrant",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM11STheTyrant/RM11STheTyrant.cs"
+  },
+  {
+    "ContentId": 1075,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "至天の座アルカディア零式：ヘビー級4",
+    "Label": "RM12S1TheLindwurm",
+    "Source": "BossMod.Modules/Dawntrail/Savage/RM12S1TheLindwurm/RM12S1TheLindwurm.cs"
+  },
+  {
+    "ContentId": 832,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "ヴァリガルマンダ討滅戦",
+    "Label": "T01Valigarmanda",
+    "Source": "BossMod.Modules/Dawntrail/Trial/T01Valigarmanda.cs"
+  },
+  {
+    "ContentId": 995,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "ゾラージャ討滅戦",
+    "Label": "T02Everkeep",
+    "Source": "BossMod.Modules/Dawntrail/Trial/T02Everkeep.cs"
+  },
+  {
+    "ContentId": 984,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "エターナルクイーン討滅戦",
+    "Label": "T03QueenEternal",
+    "Source": "BossMod.Modules/Dawntrail/Trial/T03QueenEternal.cs"
+  },
+  {
+    "ContentId": 1061,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "永遠の闇討滅戦",
+    "Label": "T05Necron",
+    "Source": "BossMod.Modules/Dawntrail/Trial/T05Necron.cs"
+  },
+  {
+    "ContentId": 1043,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "護竜アルシュベルド狩猟戦",
+    "Label": "T06GuardianArkveld",
+    "Source": "BossMod.Modules/Dawntrail/Trial/T06GuardianArkveld.cs"
+  },
+  {
+    "ContentId": 803,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極ゾディアーク討滅戦",
+    "Label": "Ex1Zodiark",
+    "Source": "BossMod.Modules/Endwalker/Extreme/Ex1Zodiark/Ex1Zodiark.cs"
+  },
+  {
+    "ContentId": 791,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極ハイデリン討滅戦",
+    "Label": "Ex2Hydaelyn",
+    "Source": "BossMod.Modules/Endwalker/Extreme/Ex2Hydaelyn/Ex2Hydaelyn.cs"
+  },
+  {
+    "ContentId": 846,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "終極の戦い",
+    "Label": "Ex3Endsinger",
+    "Source": "BossMod.Modules/Endwalker/Extreme/Ex3Endsinger/Ex3Endsinger.cs"
+  },
+  {
+    "ContentId": 871,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極バルバリシア討滅戦",
+    "Label": "Ex4Barbariccia",
+    "Source": "BossMod.Modules/Endwalker/Extreme/Ex4Barbariccia/Ex4Barbariccia.cs"
+  },
+  {
+    "ContentId": 924,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極ルビカンテ討滅戦",
+    "Label": "Ex5Rubicante",
+    "Source": "BossMod.Modules/Endwalker/Extreme/Ex5Rubicante/Ex5Rubicante.cs"
+  },
+  {
+    "ContentId": 950,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極ゴルベーザ討滅戦",
+    "Label": "Ex6Golbez",
+    "Source": "BossMod.Modules/Endwalker/Extreme/Ex6Golbez/Ex6Golbez.cs"
+  },
+  {
+    "ContentId": 965,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極ゼロムス討滅戦",
+    "Label": "Ex7Zeromus",
+    "Source": "BossMod.Modules/Endwalker/Extreme/Ex7Zeromus/Ex7Zeromus.cs"
+  },
+  {
+    "ContentId": 939,
+    "X": 100.0,
+    "Z": 92.5,
+    "Name": "万魔殿パンデモニウム零式：天獄編2",
+    "Label": "P10SPandaemonium",
+    "Source": "BossMod.Modules/Endwalker/Savage/P10SPandaemonium/P10SPandaemonium.cs"
+  },
+  {
+    "ContentId": 941,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：天獄編3",
+    "Label": "P11SThemis",
+    "Source": "BossMod.Modules/Endwalker/Savage/P11SThemis/P11SThemis.cs"
+  },
+  {
+    "ContentId": 943,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：天獄編4",
+    "Label": "P12S1Athena",
+    "Source": "BossMod.Modules/Endwalker/Savage/P12S1Athena/P12S1Athena.cs"
+  },
+  {
+    "ContentId": 943,
+    "X": 100.0,
+    "Z": 95.0,
+    "Name": "万魔殿パンデモニウム零式：天獄編4",
+    "Label": "P12S2PallasAthena",
+    "Source": "BossMod.Modules/Endwalker/Savage/P12S2PallasAthena/P12S2PallasAthena.cs"
+  },
+  {
+    "ContentId": 809,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：辺獄編1",
+    "Label": "P1S",
+    "Source": "BossMod.Modules/Endwalker/Savage/P1SErichthonios/P1S.cs"
+  },
+  {
+    "ContentId": 811,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：辺獄編2",
+    "Label": "P2S",
+    "Source": "BossMod.Modules/Endwalker/Savage/P2SHippokampos/P2S.cs"
+  },
+  {
+    "ContentId": 807,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：辺獄編3",
+    "Label": "P3S",
+    "Source": "BossMod.Modules/Endwalker/Savage/P3SPhoinix/P3S.cs"
+  },
+  {
+    "ContentId": 801,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：辺獄編4",
+    "Label": "P4S1",
+    "Source": "BossMod.Modules/Endwalker/Savage/P4S1Hesperos/P4S1.cs"
+  },
+  {
+    "ContentId": 873,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：煉獄編1",
+    "Label": "P5S",
+    "Source": "BossMod.Modules/Endwalker/Savage/P5SProtoCarbuncle/P5S.cs"
+  },
+  {
+    "ContentId": 881,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：煉獄編2",
+    "Label": "P6S",
+    "Source": "BossMod.Modules/Endwalker/Savage/P6SHegemone/P6S.cs"
+  },
+  {
+    "ContentId": 877,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：煉獄編3",
+    "Label": "P7S",
+    "Source": "BossMod.Modules/Endwalker/Savage/P7SAgdistis/P7S.cs"
+  },
+  {
+    "ContentId": 884,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：煉獄編4",
+    "Label": "P8S1",
+    "Source": "BossMod.Modules/Endwalker/Savage/P8S1Hephaistos/P8S1.cs"
+  },
+  {
+    "ContentId": 937,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "万魔殿パンデモニウム零式：天獄編1",
+    "Label": "P9SKokytos",
+    "Source": "BossMod.Modules/Endwalker/Savage/P9SKokytos/P9SKokytos.cs"
+  },
+  {
+    "ContentId": 790,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "ハイデリン討滅戦",
+    "Label": "T02Hydaelyn",
+    "Source": "BossMod.Modules/Endwalker/Trial/T02Hydaelyn/T02Hydaelyn.cs"
+  },
+  {
+    "ContentId": 944,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "アスラ討滅戦",
+    "Label": "T08Asura",
+    "Source": "BossMod.Modules/Endwalker/Trial/T08Asura/T08Asura.cs"
+  },
+  {
+    "ContentId": 86,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "真ラーヴァナ討滅戦",
+    "Label": "T01Ravana",
+    "Source": "BossMod.Modules/Heavensward/Trial/T01Ravana.cs"
+  },
+  {
+    "ContentId": 90,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "ナイツ・オブ・ラウンド討滅戦",
+    "Label": "T03Thordan",
+    "Source": "BossMod.Modules/Heavensward/Trial/T03Thordan.cs"
+  },
+  {
+    "ContentId": 68,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "究極幻想 アルテマウェポン破壊作戦",
+    "Label": "Ex1Ultima",
+    "Source": "BossMod.Modules/RealmReborn/Extreme/Ex1Ultima/Ex1Ultima.cs"
+  },
+  {
+    "ContentId": 65,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "極ガルーダ討滅戦",
+    "Label": "Ex2Garuda",
+    "Source": "BossMod.Modules/RealmReborn/Extreme/Ex2Garuda/Ex2Garuda.cs"
+  },
+  {
+    "ContentId": 64,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "極タイタン討滅戦",
+    "Label": "Ex3Titan",
+    "Source": "BossMod.Modules/RealmReborn/Extreme/Ex3Titan/Ex3Titan.cs"
+  },
+  {
+    "ContentId": 63,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "極イフリート討滅戦",
+    "Label": "Ex4Ifrit",
+    "Source": "BossMod.Modules/RealmReborn/Extreme/Ex4Ifrit/Ex4Ifrit.cs"
+  },
+  {
+    "ContentId": 56,
+    "X": -0.0,
+    "Z": 0.0,
+    "Name": "イフリート討伐戦",
+    "Label": "T01IfritN",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T01IfritN/T01IfritN.cs"
+  },
+  {
+    "ContentId": 57,
+    "X": -0.0,
+    "Z": 0.0,
+    "Name": "タイタン討伐戦",
+    "Label": "T02TitanN",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T02TitanN/T02TitanN.cs"
+  },
+  {
+    "ContentId": 58,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "ガルーダ討伐戦",
+    "Label": "T03GarudaN",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T03GarudaN/T03GarudaN.cs"
+  },
+  {
+    "ContentId": 830,
+    "X": -772.0,
+    "Z": -600.0,
+    "Name": "アルテマウェポン破壊作戦",
+    "Label": "T04PortaDecumana1",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T04PortaDecumana/T04PortaDecumana1.cs"
+  },
+  {
+    "ContentId": 830,
+    "X": -704.0,
+    "Z": 480.0,
+    "Name": "アルテマウェポン破壊作戦",
+    "Label": "T04PortaDecumana2",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T04PortaDecumana/T04PortaDecumana2.cs"
+  },
+  {
+    "ContentId": 59,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "真イフリート討滅戦",
+    "Label": "T05IfritH",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T05IfritH/T05IfritH.cs"
+  },
+  {
+    "ContentId": 61,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "真ガルーダ討滅戦",
+    "Label": "T06GarudaH",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T06GarudaH/T06GarudaH.cs"
+  },
+  {
+    "ContentId": 60,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "真タイタン討滅戦",
+    "Label": "T07TitanH",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T07TitanH/T07TitanH.cs"
+  },
+  {
+    "ContentId": 66,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "善王モグル・モグXII世討滅戦",
+    "Label": "T08ThornmarchH",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T08ThornmarchH/T08ThornmarchH.cs"
+  },
+  {
+    "ContentId": 72,
+    "X": -0.0,
+    "Z": 0.0,
+    "Name": "真リヴァイアサン討滅戦",
+    "Label": "T09WhorleaterH",
+    "Source": "BossMod.Modules/RealmReborn/Trial/T09WhorleaterH/T09WhorleaterH.cs"
+  },
+  {
+    "ContentId": 761,
+    "X": 0.0,
+    "Z": 278.0,
+    "Name": "グンヒルド・ディルーブラム零式",
+    "Label": "DRS1",
+    "Source": "BossMod.Modules/Shadowbringers/Foray/DelubrumReginae/DRS1TrinitySeeker/DRS1.cs"
+  },
+  {
+    "ContentId": 761,
+    "X": -160.0,
+    "Z": 78.0,
+    "Name": "グンヒルド・ディルーブラム零式",
+    "Label": "DRS2",
+    "Source": "BossMod.Modules/Shadowbringers/Foray/DelubrumReginae/DRS2StygimolochWarrior/DRS2.cs"
+  },
+  {
+    "ContentId": 761,
+    "X": 82.0,
+    "Z": 138.0,
+    "Name": "グンヒルド・ディルーブラム零式",
+    "Label": "DRS3",
+    "Source": "BossMod.Modules/Shadowbringers/Foray/DelubrumReginae/DRS3Dahu/DRS3.cs"
+  },
+  {
+    "ContentId": 761,
+    "X": 244.0,
+    "Z": -162.0,
+    "Name": "グンヒルド・ディルーブラム零式",
+    "Label": "DRS4",
+    "Source": "BossMod.Modules/Shadowbringers/Foray/DelubrumReginae/DRS4QueensGuard/DRS4.cs"
+  },
+  {
+    "ContentId": 761,
+    "X": 202.0,
+    "Z": -370.0,
+    "Name": "グンヒルド・ディルーブラム零式",
+    "Label": "DRS5",
+    "Source": "BossMod.Modules/Shadowbringers/Foray/DelubrumReginae/DRS5Phantom/DRS5.cs"
+  },
+  {
+    "ContentId": 761,
+    "X": -272.0,
+    "Z": -82.0,
+    "Name": "グンヒルド・ディルーブラム零式",
+    "Label": "DRS6",
+    "Source": "BossMod.Modules/Shadowbringers/Foray/DelubrumReginae/DRS6TrinityAvowed/DRS6.cs"
+  },
+  {
+    "ContentId": 761,
+    "X": -416.0,
+    "Z": -184.0,
+    "Name": "グンヒルド・ディルーブラム零式",
+    "Label": "DRS7",
+    "Source": "BossMod.Modules/Shadowbringers/Foray/DelubrumReginae/DRS7StygimolochLord/DRS7.cs"
+  },
+  {
+    "ContentId": 761,
+    "X": -272.0,
+    "Z": -415.0,
+    "Name": "グンヒルド・ディルーブラム零式",
+    "Label": "DRS8",
+    "Source": "BossMod.Modules/Shadowbringers/Foray/DelubrumReginae/DRS8Queen/DRS8.cs"
+  },
+  {
+    "ContentId": 657,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "ティターニア討滅戦",
+    "Label": "T01Titania",
+    "Source": "BossMod.Modules/Shadowbringers/Trial/T01Titania.cs"
+  },
+  {
+    "ContentId": 666,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "イノセンス討滅戦",
+    "Label": "T02Innocence",
+    "Source": "BossMod.Modules/Shadowbringers/Trial/T02Innocence.cs"
+  },
+  {
+    "ContentId": 687,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "ハーデス討滅戦",
+    "Label": "T03Hades",
+    "Source": "BossMod.Modules/Shadowbringers/Trial/T03Hades.cs"
+  },
+  {
+    "ContentId": 738,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "ウォーリア・オブ・ライト討滅戦",
+    "Label": "T04WarriorOfLight",
+    "Source": "BossMod.Modules/Shadowbringers/Trial/T04WarriorOfLight.cs"
+  },
+  {
+    "ContentId": 475,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極リオレウス狩猟戦",
+    "Label": "Ex5Rathalos",
+    "Source": "BossMod.Modules/Stormblood/Extreme/Ex5Rathalos.cs"
+  },
+  {
+    "ContentId": 638,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "極青龍征魂戦",
+    "Label": "Ex9Seiryu",
+    "Source": "BossMod.Modules/Stormblood/Extreme/Ex9Seiryu.cs"
+  },
+  {
+    "ContentId": 243,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "スサノオ討滅戦",
+    "Label": "T01Susano",
+    "Source": "BossMod.Modules/Stormblood/Trial/T01Susano.cs"
+  },
+  {
+    "ContentId": 263,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "ラクシュミ討滅戦",
+    "Label": "T02Lakshmi",
+    "Source": "BossMod.Modules/Stormblood/Trial/T02Lakshmi.cs"
+  },
+  {
+    "ContentId": 239,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "神龍討滅戦",
+    "Label": "T03Shinryu",
+    "Source": "BossMod.Modules/Stormblood/Trial/T03Shinryu.cs"
+  },
+  {
+    "ContentId": 537,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "ツクヨミ討滅戦",
+    "Label": "T04Tsukuyomi",
+    "Source": "BossMod.Modules/Stormblood/Trial/T04Tsukuyomi.cs"
+  },
+  {
+    "ContentId": 474,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "リオレウス狩猟戦",
+    "Label": "T05Rathalos",
+    "Source": "BossMod.Modules/Stormblood/Trial/T05Rathalos.cs"
+  },
+  {
+    "ContentId": 637,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "青龍征魂戦",
+    "Label": "T09Seiryu",
+    "Source": "BossMod.Modules/Stormblood/Trial/T09Seiryu.cs"
+  },
+  {
+    "ContentId": 1006,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "絶もうひとつの未来",
+    "Label": "FRU",
+    "Source": "BossMod.Ultimate/Dawntrail/Ultimate/FRU/FRU.cs"
+  },
+  {
+    "ContentId": 1094,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "絶妖星乱舞",
+    "Label": "UMAD",
+    "Source": "BossMod.Ultimate/Dawntrail/Ultimate/UMAD/UMAD.cs"
+  },
+  {
+    "ContentId": 788,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "絶竜詩戦争",
+    "Label": "DSW1",
+    "Source": "BossMod.Ultimate/Endwalker/Ultimate/DSW1/DSW1.cs"
+  },
+  {
+    "ContentId": 908,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "絶オメガ検証戦",
+    "Label": "TOP",
+    "Source": "BossMod.Ultimate/Endwalker/Ultimate/TOP/TOP.cs"
+  },
+  {
+    "ContentId": 694,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "絶アレキサンダー討滅戦",
+    "Label": "TEA",
+    "Source": "BossMod.Ultimate/Shadowbringers/Ultimate/TEA/TEA.cs"
+  },
+  {
+    "ContentId": 280,
+    "X": 0.0,
+    "Z": 0.0,
+    "Name": "絶バハムート討滅戦",
+    "Label": "UCOB",
+    "Source": "BossMod.Ultimate/Stormblood/Ultimate/UCOB/UCOB.cs"
+  },
+  {
+    "ContentId": 539,
+    "X": 100.0,
+    "Z": 100.0,
+    "Name": "絶アルテマウェポン破壊作戦",
+    "Label": "UWU",
+    "Source": "BossMod.Ultimate/Stormblood/Ultimate/UWU/UWU.cs"
+  }
+]
