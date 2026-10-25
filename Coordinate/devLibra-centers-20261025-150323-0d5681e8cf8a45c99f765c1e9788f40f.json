@@ -1,0 +1,664 @@
+{
+  "Format": "devLibra.ArenaCenters",
+  "Version": 1,
+  "Centers": [
+    {
+      "ContentId": 833,
+      "Label": "Ex1Valigarmanda",
+      "Name": "\u6975\u30F4\u30A1\u30EA\u30AC\u30EB\u30DE\u30F3\u30C0\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 996,
+      "Label": "Ex2ZoraalJa",
+      "Name": "\u6975\u30BE\u30E9\u30FC\u30B8\u30E3\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1017,
+      "Label": "Ex3Sphene",
+      "Name": "\u6975\u30A8\u30BF\u30FC\u30CA\u30EB\u30AF\u30A4\u30FC\u30F3\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1031,
+      "Label": "Ex4Zelenia",
+      "Name": "\u6975\u30BC\u30EC\u30CB\u30A2\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1062,
+      "Label": "Ex5Necron",
+      "Name": "\u6975\u6C38\u9060\u306E\u95C7\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1044,
+      "Label": "Ex6GuardianArkveld",
+      "Name": "\u6975\u8B77\u7ADC\u30A2\u30EB\u30B7\u30E5\u30D9\u30EB\u30C9\u72E9\u731F\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1077,
+      "Label": "Ex7Doomtrain",
+      "Name": "\u6975\u30B0\u30E9\u30B7\u30E3\u30E9\u30DC\u30E9\u30B9\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1116,
+      "Label": "Ex8Enuo",
+      "Name": "\u6975\u30A8\u30CC\u30AA\u30FC\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 986,
+      "Label": "RM01SBlackCat",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30E9\u30A4\u30C8\u30D8\u30D3\u30FC\u7D1A1",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 988,
+      "Label": "RM02SHoneyBLovely",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30E9\u30A4\u30C8\u30D8\u30D3\u30FC\u7D1A2",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 990,
+      "Label": "RM03SBruteBomber",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30E9\u30A4\u30C8\u30D8\u30D3\u30FC\u7D1A3",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 992,
+      "Label": "P1Center",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30E9\u30A4\u30C8\u30D8\u30D3\u30FC\u7D1A4",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 992,
+      "Label": "P2Center",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30E9\u30A4\u30C8\u30D8\u30D3\u30FC\u7D1A4",
+      "X": 100,
+      "Z": 165
+    },
+    {
+      "ContentId": 1020,
+      "Label": "RM05SDancingGreen",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30AF\u30EB\u30FC\u30B6\u30FC\u7D1A1",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1022,
+      "Label": "ArenaCenter",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30AF\u30EB\u30FC\u30B6\u30FC\u7D1A2",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1024,
+      "Label": "RM07SBruteAbominator",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30AF\u30EB\u30FC\u30B6\u30FC\u7D1A3",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1026,
+      "Label": "RM08SHowlingBlade",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30AF\u30EB\u30FC\u30B6\u30FC\u7D1A4",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1069,
+      "Label": "RM09SVampFatale",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30D8\u30D3\u30FC\u7D1A1",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1071,
+      "Label": "RM10STheXtremes",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30D8\u30D3\u30FC\u7D1A2",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1073,
+      "Label": "RM11STheTyrant",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30D8\u30D3\u30FC\u7D1A3",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1075,
+      "Label": "RM12S1TheLindwurm",
+      "Name": "\u81F3\u5929\u306E\u5EA7\u30A2\u30EB\u30AB\u30C7\u30A3\u30A2\u96F6\u5F0F\uFF1A\u30D8\u30D3\u30FC\u7D1A4",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 832,
+      "Label": "T01Valigarmanda",
+      "Name": "\u30F4\u30A1\u30EA\u30AC\u30EB\u30DE\u30F3\u30C0\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 995,
+      "Label": "T02Everkeep",
+      "Name": "\u30BE\u30E9\u30FC\u30B8\u30E3\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 984,
+      "Label": "T03QueenEternal",
+      "Name": "\u30A8\u30BF\u30FC\u30CA\u30EB\u30AF\u30A4\u30FC\u30F3\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1061,
+      "Label": "T05Necron",
+      "Name": "\u6C38\u9060\u306E\u95C7\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1043,
+      "Label": "T06GuardianArkveld",
+      "Name": "\u8B77\u7ADC\u30A2\u30EB\u30B7\u30E5\u30D9\u30EB\u30C9\u72E9\u731F\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 803,
+      "Label": "Ex1Zodiark",
+      "Name": "\u6975\u30BE\u30C7\u30A3\u30A2\u30FC\u30AF\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 791,
+      "Label": "Ex2Hydaelyn",
+      "Name": "\u6975\u30CF\u30A4\u30C7\u30EA\u30F3\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 846,
+      "Label": "Ex3Endsinger",
+      "Name": "\u7D42\u6975\u306E\u6226\u3044",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 871,
+      "Label": "Ex4Barbariccia",
+      "Name": "\u6975\u30D0\u30EB\u30D0\u30EA\u30B7\u30A2\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 924,
+      "Label": "Ex5Rubicante",
+      "Name": "\u6975\u30EB\u30D3\u30AB\u30F3\u30C6\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 950,
+      "Label": "Ex6Golbez",
+      "Name": "\u6975\u30B4\u30EB\u30D9\u30FC\u30B6\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 965,
+      "Label": "Ex7Zeromus",
+      "Name": "\u6975\u30BC\u30ED\u30E0\u30B9\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 939,
+      "Label": "P10SPandaemonium",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u5929\u7344\u7DE82",
+      "X": 100,
+      "Z": 92.5
+    },
+    {
+      "ContentId": 941,
+      "Label": "P11SThemis",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u5929\u7344\u7DE83",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 943,
+      "Label": "P12S1Athena",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u5929\u7344\u7DE84",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 943,
+      "Label": "P12S2PallasAthena",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u5929\u7344\u7DE84",
+      "X": 100,
+      "Z": 95
+    },
+    {
+      "ContentId": 809,
+      "Label": "P1S",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u8FBA\u7344\u7DE81",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 811,
+      "Label": "P2S",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u8FBA\u7344\u7DE82",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 807,
+      "Label": "P3S",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u8FBA\u7344\u7DE83",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 801,
+      "Label": "P4S1",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u8FBA\u7344\u7DE84",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 873,
+      "Label": "P5S",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u7149\u7344\u7DE81",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 881,
+      "Label": "P6S",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u7149\u7344\u7DE82",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 877,
+      "Label": "P7S",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u7149\u7344\u7DE83",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 884,
+      "Label": "P8S1",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u7149\u7344\u7DE84",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 937,
+      "Label": "P9SKokytos",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\u96F6\u5F0F\uFF1A\u5929\u7344\u7DE81",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 790,
+      "Label": "T02Hydaelyn",
+      "Name": "\u30CF\u30A4\u30C7\u30EA\u30F3\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 944,
+      "Label": "T08Asura",
+      "Name": "\u30A2\u30B9\u30E9\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 86,
+      "Label": "T01Ravana",
+      "Name": "\u771F\u30E9\u30FC\u30F4\u30A1\u30CA\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 90,
+      "Label": "T03Thordan",
+      "Name": "\u30CA\u30A4\u30C4\u30FB\u30AA\u30D6\u30FB\u30E9\u30A6\u30F3\u30C9\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 68,
+      "Label": "Ex1Ultima",
+      "Name": "\u7A76\u6975\u5E7B\u60F3 \u30A2\u30EB\u30C6\u30DE\u30A6\u30A7\u30DD\u30F3\u7834\u58CA\u4F5C\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 65,
+      "Label": "Ex2Garuda",
+      "Name": "\u6975\u30AC\u30EB\u30FC\u30C0\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 64,
+      "Label": "Ex3Titan",
+      "Name": "\u6975\u30BF\u30A4\u30BF\u30F3\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 63,
+      "Label": "Ex4Ifrit",
+      "Name": "\u6975\u30A4\u30D5\u30EA\u30FC\u30C8\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 56,
+      "Label": "T01IfritN",
+      "Name": "\u30A4\u30D5\u30EA\u30FC\u30C8\u8A0E\u4F10\u6226",
+      "X": -0,
+      "Z": 0
+    },
+    {
+      "ContentId": 57,
+      "Label": "T02TitanN",
+      "Name": "\u30BF\u30A4\u30BF\u30F3\u8A0E\u4F10\u6226",
+      "X": -0,
+      "Z": 0
+    },
+    {
+      "ContentId": 58,
+      "Label": "T03GarudaN",
+      "Name": "\u30AC\u30EB\u30FC\u30C0\u8A0E\u4F10\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 830,
+      "Label": "T04PortaDecumana1",
+      "Name": "\u30A2\u30EB\u30C6\u30DE\u30A6\u30A7\u30DD\u30F3\u7834\u58CA\u4F5C\u6226",
+      "X": -772,
+      "Z": -600
+    },
+    {
+      "ContentId": 830,
+      "Label": "T04PortaDecumana2",
+      "Name": "\u30A2\u30EB\u30C6\u30DE\u30A6\u30A7\u30DD\u30F3\u7834\u58CA\u4F5C\u6226",
+      "X": -704,
+      "Z": 480
+    },
+    {
+      "ContentId": 59,
+      "Label": "T05IfritH",
+      "Name": "\u771F\u30A4\u30D5\u30EA\u30FC\u30C8\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 61,
+      "Label": "T06GarudaH",
+      "Name": "\u771F\u30AC\u30EB\u30FC\u30C0\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 60,
+      "Label": "T07TitanH",
+      "Name": "\u771F\u30BF\u30A4\u30BF\u30F3\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 66,
+      "Label": "T08ThornmarchH",
+      "Name": "\u5584\u738B\u30E2\u30B0\u30EB\u30FB\u30E2\u30B0XII\u4E16\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 72,
+      "Label": "T09WhorleaterH",
+      "Name": "\u771F\u30EA\u30F4\u30A1\u30A4\u30A2\u30B5\u30F3\u8A0E\u6EC5\u6226",
+      "X": -0,
+      "Z": 0
+    },
+    {
+      "ContentId": 761,
+      "Label": "DRS1",
+      "Name": "\u30B0\u30F3\u30D2\u30EB\u30C9\u30FB\u30C7\u30A3\u30EB\u30FC\u30D6\u30E9\u30E0\u96F6\u5F0F",
+      "X": 0,
+      "Z": 278
+    },
+    {
+      "ContentId": 761,
+      "Label": "DRS2",
+      "Name": "\u30B0\u30F3\u30D2\u30EB\u30C9\u30FB\u30C7\u30A3\u30EB\u30FC\u30D6\u30E9\u30E0\u96F6\u5F0F",
+      "X": -160,
+      "Z": 78
+    },
+    {
+      "ContentId": 761,
+      "Label": "DRS3",
+      "Name": "\u30B0\u30F3\u30D2\u30EB\u30C9\u30FB\u30C7\u30A3\u30EB\u30FC\u30D6\u30E9\u30E0\u96F6\u5F0F",
+      "X": 82,
+      "Z": 138
+    },
+    {
+      "ContentId": 761,
+      "Label": "DRS4",
+      "Name": "\u30B0\u30F3\u30D2\u30EB\u30C9\u30FB\u30C7\u30A3\u30EB\u30FC\u30D6\u30E9\u30E0\u96F6\u5F0F",
+      "X": 244,
+      "Z": -162
+    },
+    {
+      "ContentId": 761,
+      "Label": "DRS5",
+      "Name": "\u30B0\u30F3\u30D2\u30EB\u30C9\u30FB\u30C7\u30A3\u30EB\u30FC\u30D6\u30E9\u30E0\u96F6\u5F0F",
+      "X": 202,
+      "Z": -370
+    },
+    {
+      "ContentId": 761,
+      "Label": "DRS6",
+      "Name": "\u30B0\u30F3\u30D2\u30EB\u30C9\u30FB\u30C7\u30A3\u30EB\u30FC\u30D6\u30E9\u30E0\u96F6\u5F0F",
+      "X": -272,
+      "Z": -82
+    },
+    {
+      "ContentId": 761,
+      "Label": "DRS7",
+      "Name": "\u30B0\u30F3\u30D2\u30EB\u30C9\u30FB\u30C7\u30A3\u30EB\u30FC\u30D6\u30E9\u30E0\u96F6\u5F0F",
+      "X": -416,
+      "Z": -184
+    },
+    {
+      "ContentId": 761,
+      "Label": "DRS8",
+      "Name": "\u30B0\u30F3\u30D2\u30EB\u30C9\u30FB\u30C7\u30A3\u30EB\u30FC\u30D6\u30E9\u30E0\u96F6\u5F0F",
+      "X": -272,
+      "Z": -415
+    },
+    {
+      "ContentId": 657,
+      "Label": "T01Titania",
+      "Name": "\u30C6\u30A3\u30BF\u30FC\u30CB\u30A2\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 666,
+      "Label": "T02Innocence",
+      "Name": "\u30A4\u30CE\u30BB\u30F3\u30B9\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 687,
+      "Label": "T03Hades",
+      "Name": "\u30CF\u30FC\u30C7\u30B9\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 738,
+      "Label": "T04WarriorOfLight",
+      "Name": "\u30A6\u30A9\u30FC\u30EA\u30A2\u30FB\u30AA\u30D6\u30FB\u30E9\u30A4\u30C8\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 475,
+      "Label": "Ex5Rathalos",
+      "Name": "\u6975\u30EA\u30AA\u30EC\u30A6\u30B9\u72E9\u731F\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 638,
+      "Label": "Ex9Seiryu",
+      "Name": "\u6975\u9752\u9F8D\u5F81\u9B42\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 243,
+      "Label": "T01Susano",
+      "Name": "\u30B9\u30B5\u30CE\u30AA\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 263,
+      "Label": "T02Lakshmi",
+      "Name": "\u30E9\u30AF\u30B7\u30E5\u30DF\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 239,
+      "Label": "T03Shinryu",
+      "Name": "\u795E\u9F8D\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 537,
+      "Label": "T04Tsukuyomi",
+      "Name": "\u30C4\u30AF\u30E8\u30DF\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 474,
+      "Label": "T05Rathalos",
+      "Name": "\u30EA\u30AA\u30EC\u30A6\u30B9\u72E9\u731F\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 637,
+      "Label": "T09Seiryu",
+      "Name": "\u9752\u9F8D\u5F81\u9B42\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1006,
+      "Label": "FRU",
+      "Name": "\u7D76\u3082\u3046\u3072\u3068\u3064\u306E\u672A\u6765",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 1094,
+      "Label": "UMAD",
+      "Name": "\u7D76\u5996\u661F\u4E71\u821E",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 788,
+      "Label": "DSW1",
+      "Name": "\u7D76\u7ADC\u8A69\u6226\u4E89",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 908,
+      "Label": "TOP",
+      "Name": "\u7D76\u30AA\u30E1\u30AC\u691C\u8A3C\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 694,
+      "Label": "TEA",
+      "Name": "\u7D76\u30A2\u30EC\u30AD\u30B5\u30F3\u30C0\u30FC\u8A0E\u6EC5\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 280,
+      "Label": "UCOB",
+      "Name": "\u7D76\u30D0\u30CF\u30E0\u30FC\u30C8\u8A0E\u6EC5\u6226",
+      "X": 0,
+      "Z": 0
+    },
+    {
+      "ContentId": 539,
+      "Label": "UWU",
+      "Name": "\u7D76\u30A2\u30EB\u30C6\u30DE\u30A6\u30A7\u30DD\u30F3\u7834\u58CA\u4F5C\u6226",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 590,
+      "Label": "\u30D5\u30A3\u30FC\u30EB\u30C9\u4E2D\u592E",
+      "Name": "\u6B21\u5143\u306E\u72ED\u9593\u30AA\u30E1\u30AC\uFF1A\u30A2\u30EB\u30D5\u30A1\u7DE84",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 593,
+      "Label": "\u30D5\u30A3\u30FC\u30EB\u30C9\u4E2D\u592E",
+      "Name": "\u6B21\u5143\u306E\u72ED\u9593\u30AA\u30E1\u30AC\u96F6\u5F0F\uFF1A\u30A2\u30EB\u30D5\u30A1\u7DE83",
+      "X": 100,
+      "Z": 100
+    },
+    {
+      "ContentId": 942,
+      "Label": "\u30D5\u30A3\u30FC\u30EB\u30C9\u4E2D\u592E",
+      "Name": "\u4E07\u9B54\u6BBF\u30D1\u30F3\u30C7\u30E2\u30CB\u30A6\u30E0\uFF1A\u5929\u7344\u7DE84",
+      "X": 100,
+      "Z": 100
+    }
+  ]
+}
